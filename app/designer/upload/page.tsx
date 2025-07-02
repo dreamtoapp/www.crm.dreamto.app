@@ -26,7 +26,8 @@ interface SelectedFile {
 
 export default function DesignerUploadPage() {
   const params = useParams();
-  const designerId = params?.clientId || params?.designerId || "D456";
+  const designerIdentifier = params?.clientId || params?.designerId || "D456";
+  const [designerId, setDesignerId] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -75,6 +76,13 @@ export default function DesignerUploadPage() {
     }
     fetchDesignTypes();
   }, []);
+
+  useEffect(() => {
+    if (!designerIdentifier) return;
+    fetch(`/api/users/${designerIdentifier}`)
+      .then(res => res.json())
+      .then(data => setDesignerId(data.id));
+  }, [designerIdentifier]);
 
   function handleClientSelect(value: string) {
     setSelectedClient(value);
@@ -135,7 +143,7 @@ export default function DesignerUploadPage() {
       for (const item of selectedFiles) {
         const formData = new FormData();
         formData.append("file", item.file);
-        formData.append("uploaderId", designerId as string);
+        formData.append("uploaderId", designerId);
         formData.append("clientName", clientName);
         const selectedType = designTypes.find(dt => dt.id === item.tag);
         formData.append("designTypeId", item.tag);

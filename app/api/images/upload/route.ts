@@ -35,10 +35,12 @@ export async function POST(req: NextRequest) {
     const filename = (file as File).name || undefined;
     const result: any = await uploadImage(buffer, clientName, filename);
 
+    // Build optimized Cloudinary URL
+    const baseUrl = result.secure_url.split('/upload/').join('/upload/f_auto,q_auto,w_800/');
     // Save to DB
     const image = await db.image.create({
       data: {
-        url: result.secure_url,
+        url: baseUrl,
         publicId: result.public_id,
         uploaderId,
         clientName,
