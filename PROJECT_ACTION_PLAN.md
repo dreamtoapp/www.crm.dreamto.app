@@ -14,26 +14,26 @@ This file tracks the main flows and tasks for the CRM/gallery app. Mark tasks as
 ---
 
 ## 2. Designer Flow
-- [ ] Designer sees all clients in select menu (no assignment needed)
-- [ ] Designer sees only available design types in select menu
+- [x] Designer sees all clients in select menu (no assignment needed)
+- [x] Designer sees only available design types in select menu
 - [x] Designer upload page works
-- [ ] Uploaded design is linked to correct client and type
-- [ ] Designer dashboard shows only their own designs
+- [x] Uploaded design is linked to correct client and type
+- [x] Designer dashboard shows only their own designs
 
 ---
 
 ## 3. Client Flow
-- [ ] Client login (by identifier or code)
-- [ ] Client dashboard shows only their designs
-- [ ] Client can approve a design
-- [ ] Client can comment on a design
+- [x] Client login (by identifier or code)
+- [x] Client dashboard shows only their designs
+- [x] Client can approve a design
+- [x] Client can comment on a design
 - [ ] Comments/approvals are visible to designer and admin
 
 ---
 
 ## 4. Main (Public) Page
 - [x] Main page shows gallery (infinite scroll, design cards)
-- [ ] Each design card shows client name and design number
+- [x] Each design card shows client name and design number
 - [ ] (Optional) Allow visitors to copy/share design number for reference
 
 ---
