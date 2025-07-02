@@ -283,7 +283,6 @@ export default function HomePage() {
       </section>
       {/* Gallery Preview */}
       <section id="gallery" className="w-full max-w-6xl mx-auto py-10">
-        <h2 className="text-2xl font-bold text-center mb-6">نماذج من أعمالنا</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (
@@ -293,11 +292,11 @@ export default function HomePage() {
             galleryImages.map(img => (
               <Card key={img.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer">
                 <div className="relative w-full h-40 bg-muted flex items-center justify-center">
-                  <Image src={img.url} alt={img.designType || 'تصميم'} fill className="object-contain group-hover:scale-105 transition-transform duration-300" />
+                  <Image src={img.url} alt={img.type || 'تصميم'} fill className="object-contain group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <div className="p-4 flex flex-col gap-2">
-                  <Badge variant="secondary" className="w-fit">{img.designType || 'تصميم'}</Badge>
-                  <span className="font-bold text-primary-800 truncate">{img.clientName || 'عميل'}</span>
+                  <Badge variant="secondary" className="w-fit">{img.type || 'تصميم'}</Badge>
+                  <span className="font-bold text-primary-800 truncate">{img.client || 'عميل'}</span>
                 </div>
               </Card>
             ))
