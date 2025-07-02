@@ -12,6 +12,16 @@ import Image from "next/image";
 
 const availableTags = ["عرض", "منتج", "منشور اجتماعي"];
 
+const designTypeOptions = [
+  { value: "LOGO", label: "شعار" },
+  { value: "IDENTITY", label: "هوية" },
+  { value: "WEBSITE", label: "موقع" },
+  { value: "PRINT", label: "مطبوعة" },
+  { value: "APP", label: "تطبيق" },
+  { value: "AD", label: "إعلان" },
+  { value: "OTHER", label: "أخرى" },
+];
+
 interface SelectedFile {
   file: File;
   preview: string;
@@ -104,11 +114,12 @@ export default function DesignerUploadPage() {
     setUploadError(null);
     setUploadSuccess(false);
     try {
+      const clientName = clients.find(c => c.id === selectedClient)?.name || "";
       for (const item of selectedFiles) {
         const formData = new FormData();
         formData.append("file", item.file);
         formData.append("uploaderId", designerId as string);
-        formData.append("clientName", selectedClient);
+        formData.append("clientName", clientName);
         formData.append("designType", item.tag);
         const res = await fetch("/api/images/upload", {
           method: "POST",
@@ -279,12 +290,12 @@ export default function DesignerUploadPage() {
                     <div className="pt-3">
                       <Label htmlFor={`tag-select-${index}`} className="text-xs font-medium text-foreground">نوع التصميم</Label>
                       <Select value={item.tag} onValueChange={tag => handleTagSelect(index, tag)}>
-                        <SelectTrigger id={`tag-select-${index}`} className="select-elegant mt-1">
-                          <SelectValue placeholder="اختر النوع..." />
+                        <SelectTrigger className="select-elegant">
+                          <SelectValue placeholder="اختر نوع التصميم..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableTags.map(tag => (
-                            <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                          {designTypeOptions.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

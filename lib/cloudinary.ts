@@ -9,12 +9,14 @@ cloudinary.config({
 /**
  * Uploads an image to Cloudinary.
  * @param file Buffer or base64 string of the image
+ * @param clientName Client name
  * @param filename Optional filename (for public_id)
  * @returns { secure_url, public_id, ... }
  */
-export async function uploadImage(file: Buffer | string, filename?: string) {
-  const folder = process.env.CLOUDINARY_CLIENT_FOLDER || 'uploads';
+export async function uploadImage(file: Buffer | string, clientName: string, filename?: string) {
   const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
+  const topLevelFolder = process.env.CLOUDINARY_CLIENT_FOLDER || 'uploads';
+  const folder = `${topLevelFolder}/${clientName}`;
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {

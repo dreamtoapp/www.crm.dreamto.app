@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload to Cloudinary
-    const result: any = await uploadImage(buffer);
+    const filename = (file as File).name || undefined;
+    const result: any = await uploadImage(buffer, clientName, filename);
 
     // Save to DB
     const image = await db.image.create({
