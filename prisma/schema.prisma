@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  role       Role
+  identifier String   @unique // e.g., C123, D456, A789
+  email      String?  // Optional email field
+  images     Image[]
+  comments   Comment[] @relation("UserComments")
+  createdAt  DateTime @default(now())
+}
+
+model Image {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  url         String     // Cloudinary URL
+  publicId    String     // Cloudinary public_id
+  uploaderId  String
+  uploader    User       @relation(fields: [uploaderId], references: [id])
+  clientName  String
+  designType  DesignType
+  comments    Comment[]  @relation("ImageComments")
+  createdAt   DateTime   @default(now())
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  imageId   String
+  image     Image    @relation(fields: [imageId], references: [id], name: "ImageComments")
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], name: "UserComments")
+  content   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  CLIENT
+  DESIGNER
+  ADMIN
+}
+
+enum DesignType {
+  LOGO
+  IDENTITY
+  WEBSITE
+  PRINT
+  APP
+  AD
+  OTHER
+}

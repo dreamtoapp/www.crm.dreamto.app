@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Layout from "@/components/Layout";
+// import "@fontsource/ibm-plex-sans-arabic/400.css";
+// import "@fontsource/ibm-plex-sans-arabic/700.css";
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} font-arabic antialiased`}
+        style={{ fontFamily: 'IBM Plex Sans Arabic, Cairo, Tajawal, Arial, sans-serif' }}
       >
-        {children}
+        <Layout>{children}</Layout>
+        <Toaster />
       </body>
     </html>
   );
