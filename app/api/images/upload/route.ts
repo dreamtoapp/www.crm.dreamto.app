@@ -10,10 +10,11 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get('file');
     const uploaderId = formData.get('uploaderId');
+    const clientId = formData.get('clientId');
     const clientName = formData.get('clientName');
     const designTypeId = formData.get('designTypeId');
 
-    if (!file || typeof uploaderId !== 'string' || typeof clientName !== 'string' || typeof designTypeId !== 'string') {
+    if (!file || typeof uploaderId !== 'string' || typeof clientId !== 'string' || typeof clientName !== 'string' || typeof designTypeId !== 'string') {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
         url: baseUrl,
         publicId: result.public_id,
         uploaderId,
+        clientId,
         clientName,
         designTypeId,
       },

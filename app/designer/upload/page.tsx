@@ -144,6 +144,7 @@ export default function DesignerUploadPage() {
         const formData = new FormData();
         formData.append("file", item.file);
         formData.append("uploaderId", designerId);
+        formData.append("clientId", selectedClient);
         formData.append("clientName", clientName);
         const selectedType = designTypes.find(dt => dt.id === item.tag);
         formData.append("designTypeId", item.tag);
