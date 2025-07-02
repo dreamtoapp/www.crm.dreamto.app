@@ -217,20 +217,11 @@ export default function DesignerDashboardPage() {
                   <span className="font-bold truncate max-w-[100px] md:max-w-[140px] text-sm">{img.clientName}</span>
                   <span className="text-xs text-muted-foreground whitespace-nowrap">{new Date(img.createdAt).toLocaleDateString()}</span>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVerticalIcon className="size-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <a href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                        <EyeIcon className="size-4" /> عرض الصورة
-                      </a>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button asChild variant="secondary" size="sm">
+                  <a href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <EyeIcon className="size-4" /> عرض الصورة
+                  </a>
+                </Button>
               </CardFooter>
             </Card>
           );
