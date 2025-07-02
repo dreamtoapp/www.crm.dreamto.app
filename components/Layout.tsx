@@ -32,17 +32,25 @@ export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const [userId, setUserId] = React.useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
-    if (userId.startsWith("C")) {
-      router.push(`/client/${userId}`);
-    } else if (userId.startsWith("D")) {
-      router.push(`/designer/${userId}`);
-    } else if (userId.startsWith("A")) {
-      router.push(`/admin/clients`);
-    } else {
-      toast.error("معرف غير صالح. الرجاء إدخال معرف صحيح.");
+    try {
+      const res = await fetch(`/api/users/${userId}`);
+      if (!res.ok) throw new Error("المستخدم غير موجود أو حدث خطأ في البحث.");
+      const user = await res.json();
+      if (!user || !user.role) throw new Error("تعذر تحديد نوع المستخدم.");
+      if (user.role === "CLIENT") {
+        router.push(`/client/${user.identifier}`);
+      } else if (user.role === "DESIGNER") {
+        router.push(`/designer/${user.identifier}`);
+      } else if (user.role === "ADMIN") {
+        router.push(`/admin/clients`);
+      } else {
+        toast.error("نوع مستخدم غير معروف. الرجاء التواصل مع الإدارة.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "حدث خطأ أثناء تسجيل الدخول.");
     }
   }
 

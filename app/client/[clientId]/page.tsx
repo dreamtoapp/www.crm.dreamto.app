@@ -8,53 +8,39 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageCircleIcon, CheckCircle2Icon, ThumbsUpIcon, MessageSquareIcon, FilterIcon } from "lucide-react";
-
-const fakeImages = [
-  {
-    id: "1",
-    url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-    tag: "عرض",
-    status: "معلق",
-    comments: [],
-  },
-  {
-    id: "2",
-    url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
-    tag: "منتج",
-    status: "معتمد",
-    comments: [
-      { text: "جميل!", date: "2024-07-01 10:00" },
-    ],
-  },
-  {
-    id: "3",
-    url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
-    tag: "منشور اجتماعي",
-    status: "تم التعليق",
-    comments: [
-      { text: "يرجى تعديل اللون", date: "2024-07-02 15:30" },
-    ],
-  },
-  {
-    id: "4",
-    url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
-    tag: "عرض",
-    status: "معلق",
-    comments: [],
-  },
-];
-
-const tags = ["الكل", "عرض", "منتج", "منشور اجتماعي"];
+import { useParams } from "next/navigation";
+import { toast } from 'sonner';
 
 type CommentDialogState = { open: boolean; imageId: string | null };
 type ViewImageState = { open: boolean; url: string; tag: string };
 
 export default function ClientGalleryPage() {
-  const [images, setImages] = useState(fakeImages);
+  const params = useParams();
+  const clientId = params?.clientId as string;
+  const [images, setImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedTag, setSelectedTag] = useState("الكل");
   const [commentDialog, setCommentDialog] = useState<CommentDialogState>({ open: false, imageId: null });
   const [comment, setComment] = useState("");
   const [viewImage, setViewImage] = useState<ViewImageState>({ open: false, url: "", tag: "" });
+  const [showSkeleton, setShowSkeleton] = useState(true);
+
+  React.useEffect(() => {
+    if (!clientId) return;
+    setLoading(true);
+    setShowSkeleton(true);
+    fetch(`/api/images?clientId=${encodeURIComponent(clientId)}`)
+      .then(res => res.json())
+      .then(data => {
+        setImages(Array.isArray(data) ? data : []);
+        setLoading(false);
+        setTimeout(() => setShowSkeleton(false), 600);
+      })
+      .catch(() => {
+        setLoading(false);
+        setShowSkeleton(false);
+      });
+  }, [clientId]);
 
   const filteredImages = selectedTag === "الكل"
     ? images
@@ -66,6 +52,7 @@ export default function ClientGalleryPage() {
         img.id === id ? { ...img, status: "معتمد" } : img
       )
     );
+    toast.success("تم اعتماد التصميم بنجاح!");
   }
 
   function handleOpenComment(id: string) {
@@ -90,6 +77,7 @@ export default function ClientGalleryPage() {
     );
     setCommentDialog({ open: false, imageId: null });
     setComment("");
+    toast.success("تم إرسال التعليق بنجاح!");
   }
 
   function handleViewImage(url: string, tag: string) {
@@ -128,7 +116,7 @@ export default function ClientGalleryPage() {
                 <SelectValue placeholder="اختر نوع التصميم" />
               </SelectTrigger>
               <SelectContent>
-                {tags.map(tag => (
+                {["الكل", "عرض", "منتج", "منشور اجتماعي"].map(tag => (
                   <SelectItem key={tag} value={tag}>{tag}</SelectItem>
                 ))}
               </SelectContent>
@@ -137,100 +125,102 @@ export default function ClientGalleryPage() {
         </Card>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredImages.map(img => (
-            <Card key={img.id} className="card-interactive gpu-accelerated group">
-              {/* Image Container */}
-              <div className="image-container aspect-[4/3]" onClick={() => handleViewImage(img.url, img.tag)}>
-                <Image
-                  src={img.url}
-                  alt={img.tag}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  priority={false}
-                />
-                <div className="image-overlay" />
-                
-                {/* Status Indicator Overlay */}
-                {img.status === "معتمد" && (
-                  <div className="absolute top-3 right-3 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
-                    <CheckCircle2Icon className="size-6 text-emerald-600" />
-                  </div>
-                )}
-              </div>
-
-              {/* Card Content */}
-              <div className="p-6 space-y-4">
-                {/* Status and Tag Row */}
-                <div className="flex items-center justify-between">
-                  <Badge className={getStatusBadgeClass(img.status)}>
-                    {img.status}
-                  </Badge>
-                  <span className="text-sm font-medium text-muted-foreground bg-slate-100 px-3 py-1 rounded-full">
-                    {img.tag}
-                  </span>
-                </div>
-
-                {/* Comments Count */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MessageCircleIcon className="size-4" />
-                  <span>{img.comments.length} تعليق</span>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    className={img.status === "معتمد" ? "btn-secondary opacity-50" : "btn-primary"}
-                    onClick={() => handleApprove(img.id)}
-                    disabled={img.status === "معتمد"}
-                    size="sm"
-                  >
-                    <ThumbsUpIcon className="size-4 mr-2" />
-                    اعتماد
-                  </Button>
-                  <Button
-                    className="btn-ghost"
-                    onClick={() => handleOpenComment(img.id)}
-                    size="sm"
-                  >
-                    <MessageSquareIcon className="size-4 mr-2" />
-                    تعليق
-                  </Button>
-                </div>
-
-                {/* Comments Display */}
-                {img.comments.length > 0 && (
-                  <div className="pt-3 border-t border-primary-100 space-y-2">
-                    <h4 className="text-sm font-medium text-foreground">التعليقات:</h4>
-                    <div className="space-y-2 max-h-24 overflow-y-auto scrollbar-hide">
-                      {img.comments.map((c, i) => (
-                        <div key={i} className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-sm text-foreground">
-                            {typeof c === 'string' ? c : c.text}
-                          </p>
-                          {typeof c === 'object' && c.date && (
-                            <p className="text-xs text-muted-foreground mt-1">{c.date}</p>
-                          )}
-                        </div>
-                      ))}
+        {loading || showSkeleton ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="animate-pulse h-80 bg-slate-100 rounded-2xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {filteredImages.map(img => (
+              <Card key={img.id} className="card-interactive gpu-accelerated group transition-transform duration-200 hover:scale-[1.025] hover:shadow-xl rounded-2xl border border-border/60">
+                {/* Image Container */}
+                <div className="image-container aspect-[4/3] cursor-pointer relative" onClick={() => handleViewImage(img.url, img.tag)} aria-label="عرض الصورة بالحجم الكامل" tabIndex={0} role="button">
+                  <Image
+                    src={img.url}
+                    alt={img.tag || img.designType || 'تصميم'}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-500 rounded-t-2xl"
+                    priority={false}
+                  />
+                  <div className="image-overlay" />
+                  {/* Status Indicator Overlay */}
+                  {img.status === "معتمد" && (
+                    <div className="absolute top-3 right-3 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                      <CheckCircle2Icon className="size-6 text-emerald-600" />
                     </div>
+                  )}
+                </div>
+                {/* Card Content */}
+                <div className="p-4 space-y-3">
+                  {/* Status and Tag Row */}
+                  <div className="flex items-center justify-between">
+                    <Badge className={getStatusBadgeClass(img.status)}>{img.status}</Badge>
+                    <span className="text-xs font-medium text-muted-foreground bg-slate-100 px-2 py-1 rounded-full border border-slate-200">{img.tag}</span>
                   </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
+                  {/* Comments Count */}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <MessageCircleIcon className="size-4" />
+                    <span>{img.comments.length} تعليق</span>
+                  </div>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      className={img.status === "معتمد" ? "btn-secondary opacity-50" : "btn-primary"}
+                      onClick={() => handleApprove(img.id)}
+                      disabled={img.status === "معتمد"}
+                      size="sm"
+                      aria-label="اعتماد التصميم"
+                      title={img.status === "معتمد" ? "تم اعتماد هذا التصميم بالفعل" : "اعتماد التصميم"}
+                    >
+                      <ThumbsUpIcon className="size-4 mr-1" />
+                      اعتماد
+                    </Button>
+                    <Button
+                      className="btn-ghost"
+                      onClick={() => handleOpenComment(img.id)}
+                      size="sm"
+                      aria-label="إضافة تعليق"
+                    >
+                      <MessageSquareIcon className="size-4 mr-1" />
+                      تعليق
+                    </Button>
+                  </div>
+                  {/* Comments Display */}
+                  {img.comments.length > 0 && (
+                    <div className="pt-2 border-t border-primary-100 space-y-2">
+                      <h4 className="text-xs font-medium text-foreground">التعليقات:</h4>
+                      <div className="space-y-2 max-h-20 overflow-y-auto scrollbar-hide pr-1">
+                        {img.comments.map((c: any, i: number) => (
+                          <div key={i} className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-foreground">
+                              {typeof c === 'string' ? c : c.text}
+                            </p>
+                            {typeof c === 'object' && c.date && (
+                              <p className="text-[10px] text-muted-foreground mt-1">{c.date}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredImages.length === 0 && (
-          <Card className="card-elegant text-center py-12">
-            <div className="max-w-sm mx-auto">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FilterIcon className="size-8 text-primary-600" />
+        {filteredImages.length === 0 && !loading && !showSkeleton && (
+          <Card className="card-elegant text-center py-16 animate-fade-in">
+            <div className="max-w-sm mx-auto flex flex-col items-center gap-4">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-200 to-secondary-200 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">
+                <FilterIcon className="size-10 text-primary-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد صور</h3>
-              <p className="text-muted-foreground">لا توجد صور متاحة لهذا التصنيف في الوقت الحالي</p>
+              <h3 className="text-xl font-semibold text-foreground mb-1">لا توجد صور متاحة</h3>
+              <p className="text-muted-foreground">لم يتم رفع أي تصاميم لهذا التصنيف بعد. سيتم عرض التصاميم هنا عند توفرها.</p>
             </div>
           </Card>
         )}
@@ -277,18 +267,37 @@ export default function ClientGalleryPage() {
           </DialogHeader>
           {viewImage.url && (
             <div className="space-y-4">
-              <div className="relative w-full h-[70vh] bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden">
+              <div className="relative w-full h-[60vh] bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden">
                 <Image
                   src={viewImage.url}
-                  alt={viewImage.tag}
+                  alt={viewImage.tag || 'تصميم'}
                   fill
                   sizes="100vw"
                   className="object-contain"
                   priority={true}
                 />
               </div>
-              <div className="text-center">
+              <div className="flex flex-col items-center gap-2">
                 <Badge className="badge-commented">{viewImage.tag}</Badge>
+                {/* Show status and comments in modal */}
+                {filteredImages.find(img => img.url === viewImage.url) && (
+                  <>
+                    <span className="text-xs text-muted-foreground">الحالة: {filteredImages.find(img => img.url === viewImage.url)?.status}</span>
+                    <div className="w-full max-w-md mx-auto mt-2">
+                      <h4 className="text-xs font-medium text-foreground mb-1">التعليقات:</h4>
+                      <div className="space-y-2 max-h-24 overflow-y-auto scrollbar-hide pr-1">
+                        {(filteredImages.find(img => img.url === viewImage.url)?.comments || []).map((c: any, i: number) => (
+                          <div key={i} className="bg-slate-50 rounded-lg p-2">
+                            <p className="text-xs text-foreground">{typeof c === 'string' ? c : c.text}</p>
+                            {typeof c === 'object' && c.date && (
+                              <p className="text-[10px] text-muted-foreground mt-1">{c.date}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
