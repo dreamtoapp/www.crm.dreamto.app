@@ -1,9 +1,12 @@
 "use client";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GalleryHorizontalIcon, UploadCloudIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DownloadIcon, EyeIcon, MoreVerticalIcon, Trash2Icon } from "lucide-react";
 
 // Helper: Infinite scroll hook
 function useInfiniteScroll(callback: () => void, hasMore: boolean) {
@@ -195,16 +198,52 @@ export default function DesignerDashboardPage() {
       {!hasMore && images.length > 0 && (
         <div className="text-center text-muted-foreground py-8">تم عرض جميع التصاميم</div>
       )}
-      {Array.from(new Map(images.map(img => [img.id, img])).values()).map((img, idx) => (
-        <Card key={img.id} className="overflow-hidden rounded-2xl border-0">
-          <img src={img.url} alt={designTypes.find(dt => dt.id === img.designTypeId)?.name || "تصميم"} className="w-full h-60 object-cover" />
-          <div className="p-4 flex flex-col gap-2">
-            <div className="font-bold text-primary">{designTypes.find(dt => dt.id === img.designTypeId)?.name || "غير معروف"}</div>
-            <div className="text-xs text-muted-foreground">{img.clientName}</div>
-            <div className="text-xs">{new Date(img.createdAt).toLocaleDateString()}</div>
-          </div>
-        </Card>
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {Array.from(new Map(images.map(img => [img.id, img])).values()).map((img, idx) => {
+          const designTypeName = designTypes.find(dt => dt.id === img.designTypeId)?.name || "غير معروف";
+          return (
+            <Card key={img.id} className="overflow-hidden rounded-2xl border border-border/60 shadow-md transition-transform hover:scale-[1.015] hover:shadow-lg bg-white dark:bg-card flex flex-col">
+              <img
+                src={img.url}
+                alt={designTypeName}
+                className="w-full h-60 object-cover bg-muted"
+                loading="lazy"
+              />
+              <CardFooter className="flex items-center justify-between gap-2 px-4 py-3 bg-white dark:bg-card">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Badge className="text-xs px-2 py-0.5" variant="secondary">
+                    {designTypeName}
+                  </Badge>
+                  <span className="font-bold truncate max-w-[100px] md:max-w-[140px] text-sm">{img.clientName}</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{new Date(img.createdAt).toLocaleDateString()}</span>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVerticalIcon className="size-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <a href={img.url} download target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                        <DownloadIcon className="size-4" /> تنزيل
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                        <EyeIcon className="size-4" /> عرض الصورة
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive flex items-center gap-2">
+                      <Trash2Icon className="size-4" /> حذف
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardFooter>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 } 
