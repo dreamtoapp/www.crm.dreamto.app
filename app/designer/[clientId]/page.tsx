@@ -225,17 +225,9 @@ export default function DesignerDashboardPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <a href={img.url} download target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                        <DownloadIcon className="size-4" /> تنزيل
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
                       <a href={img.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                         <EyeIcon className="size-4" /> عرض الصورة
                       </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive flex items-center gap-2">
-                      <Trash2Icon className="size-4" /> حذف
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
