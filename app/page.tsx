@@ -280,19 +280,6 @@ export default function HomePage() {
             استعرض، شارك، وراجع التصاميم بسهولة واحترافية. منصة مخصصة لعملاء الشركات الإبداعية.
           </p>
         </div>
-        {/* CTA: Search for Gallery */}
-        <form className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto mt-4">
-          <Input type="text" placeholder="ادخل كود المعرض أو رقمك السري..." className="text-right" />
-          <Button type="submit" className="btn-primary">ابحث عن معرضك</Button>
-        </form>
-        <div className="flex gap-4 mt-4 justify-center">
-          <Button asChild variant="secondary">
-            <Link href="#contact">تواصل معنا</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="#gallery">شاهد أعمالنا</Link>
-          </Button>
-        </div>
       </section>
       {/* Gallery Preview */}
       <section id="gallery" className="w-full max-w-6xl mx-auto py-10">
