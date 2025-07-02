@@ -292,7 +292,8 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       title="Toggle Sidebar"
       className={cn(
         "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
-        "in-data-[side=left][data-state=collapsed]_&]:cursor-e-resize in-data-[side=right][data-state=collapsed]_&]:cursor-w-resize",
+        "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
+        "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
         "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
         "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
         "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
@@ -336,21 +337,9 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-header"
       data-sidebar="header"
-      className={cn(
-        "flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-white/70 via-gray-200/60 to-gray-400/40 rounded-b-2xl shadow-lg glass",
-        className
-      )}
+      className={cn("flex flex-col gap-2 p-2", className)}
       {...props}
-    >
-      <div className="flex flex-col items-center gap-1">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl mb-1">
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="white"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414m12.728 0l-1.414-1.414M6.05 6.05L4.636 4.636"/></svg>
-        </div>
-        <span className="text-lg font-bold text-gray-800 tracking-tight">معرض العملاء</span>
-        <span className="text-xs text-gray-500 font-medium">نظام إدارة التصاميم</span>
-        <span className="badge-premium mt-1">v2.0</span>
-      </div>
-    </div>
+    />
   )
 }
 
@@ -373,7 +362,7 @@ function SidebarSeparator({
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn("bg-gradient-to-r from-transparent via-gray-300 to-transparent h-0.5 my-2 rounded-full", className)}
+      className={cn("bg-sidebar-border mx-2 w-auto", className)}
       {...props}
     />
   )
@@ -528,11 +517,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
-      className={cn(
-        sidebarMenuButtonVariants({ variant, size }),
-        "transition-all duration-200 font-semibold text-base rounded-xl hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 hover:text-blue-700 data-[active=true]:bg-gradient-to-r data-[active=true]:from-blue-200 data-[active=true]:to-purple-200 data-[active=true]:text-blue-800",
-        className
-      )}
+      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props}
     />
   )
@@ -550,9 +535,12 @@ function SidebarMenuButton({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent side="right" align="center" className="text-sm font-medium">
-        {tooltip.children}
-      </TooltipContent>
+      <TooltipContent
+        side="right"
+        align="center"
+        hidden={state !== "collapsed" || isMobile}
+        {...tooltip}
+      />
     </Tooltip>
   )
 }
