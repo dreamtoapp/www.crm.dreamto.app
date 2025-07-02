@@ -4,8 +4,12 @@ import Image from "next/image";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SparklesIcon } from "lucide-react";
+import { SparklesIcon, GalleryHorizontalIcon, UsersIcon, ShieldCheckIcon, ClockIcon, SmileIcon } from "lucide-react";
 import { DesignType } from "../lib/types";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 // --- Constants ---
 const clientNames = [
@@ -244,92 +248,131 @@ function LoadingSkeleton() {
 
 // --- Main HomePage Component ---
 export default function HomePage() {
-  const [images, setImages] = useState(fakeImages.slice(0, 20));
-  const [hasMore, setHasMore] = useState(true);
+  const [images, setImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchMoreImages = useCallback(() => {
-    const next = images.length + 20;
-    if (next >= fakeImages.length) {
-      setImages(fakeImages);
-      setHasMore(false);
-    } else {
-      setImages(fakeImages.slice(0, next));
-    }
-  }, [images.length]);
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/images')
+      .then(res => res.json())
+      .then(data => {
+        setImages(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
-  const { loadingRef, isFetching } = useInfiniteScroll(fetchMoreImages, hasMore);
+  // Show only the latest 8 images for preview
+  const galleryImages = images.slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Restored Enhanced Header */}
-      <div className="sticky top-0 z-10 backdrop-blur-md bg-background/80 border-b border-border/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="text-center flex flex-col items-center gap-2 md:flex-row md:justify-center md:items-center md:gap-6">
-            <div className="flex justify-center items-center mb-2 md:mb-0">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary-800 flex items-center justify-center shadow-lg">
-                <SparklesIcon className="w-8 h-8 md:w-10 md:h-10 text-white" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent mb-2 md:mb-0">
-                معرض التصاميم
-              </h1>
-              <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-                استكشف مجموعة متنوعة من التصاميم الإبداعية من أفضل المصممين
-              </p>
-              <div className="flex justify-center items-center gap-4 mt-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  {images.length} تصميم
-                </span>
-                <span>•</span>
-                <span>{hasMore ? 'المزيد متاح' : 'تم عرض الكل'}</span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex flex-col items-center animate-fade-in">
+      {/* Hero Section */}
+      <section className="w-full max-w-5xl mx-auto flex flex-col items-center text-center py-12 gap-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-20 h-20 rounded-2xl bg-white shadow flex items-center justify-center border border-gray-200 mb-2">
+            <Image src="/dta.svg" alt="شعار النظام" width={60} height={60} className="object-contain" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            منصة <span className="text-primary-800">معرض العملاء</span>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-xl mt-2">
+            استعرض، شارك، وراجع التصاميم بسهولة واحترافية. منصة مخصصة لعملاء الشركات الإبداعية.
+          </p>
+        </div>
+        {/* CTA: Search for Gallery */}
+        <form className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto mt-4">
+          <Input type="text" placeholder="ادخل كود المعرض أو رقمك السري..." className="text-right" />
+          <Button type="submit" className="btn-primary">ابحث عن معرضك</Button>
+        </form>
+        <div className="flex gap-4 mt-4 justify-center">
+          <Button asChild variant="secondary">
+            <Link href="#contact">تواصل معنا</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="#gallery">شاهد أعمالنا</Link>
+          </Button>
+        </div>
+      </section>
+      {/* Gallery Preview */}
+      <section id="gallery" className="w-full max-w-6xl mx-auto py-10">
+        <h2 className="text-2xl font-bold text-center mb-6">نماذج من أعمالنا</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {loading ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="h-56 animate-pulse bg-slate-100 rounded-2xl" />
+            ))
+          ) : (
+            galleryImages.map(img => (
+              <Card key={img.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                <div className="relative w-full h-40 bg-muted flex items-center justify-center">
+                  <Image src={img.url} alt={img.designType || 'تصميم'} fill className="object-contain group-hover:scale-105 transition-transform duration-300" />
+                </div>
+                <div className="p-4 flex flex-col gap-2">
+                  <Badge variant="secondary" className="w-fit">{img.designType || 'تصميم'}</Badge>
+                  <span className="font-bold text-primary-800 truncate">{img.clientName || 'عميل'}</span>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+        <div className="text-center mt-6">
+          <Button asChild variant="link" className="text-primary-700 text-lg font-bold"> 
+            <Link href="#">عرض جميع التصاميم</Link>
+          </Button>
+        </div>
+      </section>
+      {/* Trust Section */}
+      <section className="w-full max-w-5xl mx-auto py-10 flex flex-col items-center gap-8">
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
+          <div className="flex flex-col items-center gap-2">
+            <UsersIcon className="size-8 text-primary-700" />
+            <span className="text-2xl font-bold text-primary-800">+100</span>
+            <span className="text-sm text-gray-500">عميل سعيد</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <GalleryHorizontalIcon className="size-8 text-primary-700" />
+            <span className="text-2xl font-bold text-primary-800">+500</span>
+            <span className="text-sm text-gray-500">تصميم تم تسليمه</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <ShieldCheckIcon className="size-8 text-primary-700" />
+            <span className="text-2xl font-bold text-primary-800">7</span>
+            <span className="text-sm text-gray-500">سنوات خبرة</span>
           </div>
         </div>
-      </div>
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {/* Images Grid */}
-        <div
-          className="grid gap-6 sm:gap-8 mb-8"
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            direction: "rtl",
-          }}
-        >
-          {images.map((img, index) => (
-            <DesignCard key={img.id} img={img} index={index} />
-          ))}
+        <div className="text-center max-w-2xl mx-auto mt-6">
+          <p className="text-lg text-gray-700 font-medium">"خدمة رائعة وسريعة، سهّلت علينا مراجعة التصاميم والتواصل مع فريق التصميم بكل سهولة."</p>
+          <span className="block mt-2 text-sm text-gray-500">— عميل حقيقي</span>
         </div>
-        {/* Loading States */}
-        {isFetching && <LoadingSkeleton />}
-        {/* Intersection Observer Target */}
-        {hasMore && (
-          <div ref={loadingRef} className="h-20 flex items-center justify-center">
-            {!isFetching && (
-              <div className="text-center text-muted-foreground">
-                <div className="animate-pulse">جاري التحميل...</div>
-              </div>
-            )}
-          </div>
-        )}
-        {/* End Message */}
-        {!hasMore && (
-          <div className="text-center py-12">
-            <div className="max-w-md mx-auto">
-              <div className="text-6xl mb-4">🎨</div>
-              <h3 className="text-xl font-semibold mb-2">تم عرض جميع التصاميم!</h3>
-              <p className="text-muted-foreground">
-                لقد استكشفت جميع التصاميم المتاحة في المعرض
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-      {/* Scroll to Top Button */}
-      <ScrollToTopButton />
+      </section>
+      {/* Features Section */}
+      <section className="w-full max-w-5xl mx-auto py-10 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+        <div className="flex flex-col items-center gap-3">
+          <GalleryHorizontalIcon className="size-8 text-primary-700" />
+          <h3 className="font-bold text-lg">معرض تفاعلي</h3>
+          <p className="text-sm text-gray-500">تصفح التصاميم بسهولة وبتجربة مستخدم سلسة على جميع الأجهزة.</p>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <ClockIcon className="size-8 text-primary-700" />
+          <h3 className="font-bold text-lg">تسليم سريع</h3>
+          <p className="text-sm text-gray-500">نضمن لك سرعة في تسليم التصاميم ومتابعة التعديلات.</p>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <SmileIcon className="size-8 text-primary-700" />
+          <h3 className="font-bold text-lg">سهولة التواصل</h3>
+          <p className="text-sm text-gray-500">تواصل مباشر مع فريق التصميم وترك التعليقات بسهولة.</p>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <ShieldCheckIcon className="size-8 text-primary-700" />
+          <h3 className="font-bold text-lg">أمان وخصوصية</h3>
+          <p className="text-sm text-gray-500">حماية كاملة لملفاتك وتصاميمك مع إمكانية مشاركة آمنة.</p>
+        </div>
+      </section>
+      {/* Footer */}
+      <footer className="w-full py-6 text-center text-gray-400 text-sm border-t mt-8">
+        © {new Date().getFullYear()} نظام معرض العملاء. جميع الحقوق محفوظة.
+      </footer>
     </div>
   );
 }
