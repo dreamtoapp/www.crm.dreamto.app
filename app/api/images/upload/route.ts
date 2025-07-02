@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadImage } from '@/lib/cloudinary';
 import db from '@/lib/prisma';
+import { DesignType } from '@prisma/client';
 
 export const runtime = 'nodejs'; // Ensure Node.js runtime for file uploads
 
@@ -21,6 +22,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid file upload.' }, { status: 400 });
     }
 
+    // Validate designType is a valid Prisma enum value
+    if (!Object.values(DesignType).includes(designType as DesignType)) {
+      return NextResponse.json({ error: 'Invalid design type.' }, { status: 400 });
+    }
+
     // Read file as buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -35,7 +41,7 @@ export async function POST(req: NextRequest) {
         publicId: result.public_id,
         uploaderId,
         clientName,
-        designType,
+        designType: designType as DesignType,
       },
     });
 

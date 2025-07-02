@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SparklesIcon } from "lucide-react";
+import { DesignType } from "../lib/types";
 
 // --- Constants ---
 const clientNames = [
@@ -19,15 +20,6 @@ const clientNames = [
   "عميل مميز",
   "مؤسسة التميز"
 ];
-
-export enum DesignType {
-  Logo = "شعار",
-  Identity = "هوية",
-  Website = "موقع",
-  Print = "مطبوعة",
-  Ad = "إعلان",
-  App = "تطبيق",
-}
 
 const designTypes = [
   DesignType.Logo,

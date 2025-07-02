@@ -3,9 +3,9 @@ import db from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) return NextResponse.json({ error: 'Missing image ID' }, { status: 400 });
     const image = await db.image.findUnique({
       where: { id },

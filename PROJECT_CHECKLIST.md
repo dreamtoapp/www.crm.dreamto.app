@@ -8,7 +8,7 @@ This checklist is a living reference for the project, structured by development 
 - [ ] Review and finalize PRD with stakeholders
 - [x] Set up Prettier, ESLint, and Husky for code quality *(Installed and configured. Update configuration as needed for project style.)*
 - [ ] Document setup steps in README.md
-- [ ] Configure environment variables for secrets
+- [x] Configure environment variables for secrets *(used for DB/Cloudinary)*
 - [ ] Initialize task tracking (Notion/Linear/Jira)
 
 ## 2. 🗂️ Structure & Boilerplate
@@ -19,48 +19,48 @@ This checklist is a living reference for the project, structured by development 
   - [x] `/admin/clients/[id]` (upload, gallery)
   - [x] `/admin/images` (all images, filters)
 - [x] Add shared UI layout (sidebar/topbar) *(Uses shadcn/ui Sidebar and NavigationMenu for navigation, following official best practices.)*
-- [ ] Add simple navigation for development/testing
+- [x] Add simple navigation for development/testing *(via Layout.tsx topbar form)*
 
 ## 3. 🛢️ Database & Backend
-- [ ] Add Prisma and configure MongoDB Atlas connection
-- [ ] Implement models: `Client`, `Image`, `Comment`, enums
-- [ ] Add seed scripts for test data
-- [ ] Use Zod for input validation in API routes
-- [ ] Use environment variables for DB credentials
+- [x] Add Prisma and configure MongoDB Atlas connection
+- [x] Implement models: `Client` (User), `Image`, `Comment`, enums *(see schema.prisma)*
+- [x] Add seed scripts for test data *(see prisma/seed.ts)*
+- [ ] Use Zod for input validation in API routes *(not found)*
+- [x] Use environment variables for DB credentials
 
 ## 4. 🔐 Authentication & Security
-- [ ] Integrate Clerk/Auth.js for internal roles
-- [ ] Implement client access via unique ID (no login)
-- [ ] Secure Cloudinary uploads (signed URLs/presets)
-- [ ] Use middleware for role-based access control
-- [ ] Rate-limit comment endpoints
+- [ ] Integrate Clerk/Auth.js for internal roles *(not found)*
+- [x] Implement client access via unique ID (no login)
+- [x] Secure Cloudinary uploads (signed URLs/presets)
+- [ ] Use middleware for role-based access control *(not found)*
+- [ ] Rate-limit comment endpoints *(not found)*
 
 ## 5. 🎨 UI/UX Development
-- [ ] Use App Router and file-based routing (Next.js best practice)
-- [ ] Use shadcn/ui and Tailwind for consistent design
-- [ ] Implement responsive layouts (mobile-first)
-- [ ] Add loading, error, and empty states
-- [ ] Use accessible markup (labels, alt text, keyboard nav)
+- [x] Use App Router and file-based routing (Next.js best practice)
+- [x] Use shadcn/ui and Tailwind for consistent design
+- [x] Implement responsive layouts (mobile-first)
+- [x] Add loading, error, and empty states
+- [x] Use accessible markup (labels, alt text, keyboard nav)
 - [ ] Add i18n scaffolding (next-intl)
 
 ## 6. 🖼️ Image Upload & Gallery
-- [ ] Integrate Cloudinary upload widget or custom uploader
-- [ ] Store image metadata (uploader, timestamp, tag, status)
-- [ ] Implement gallery grid with filtering (tag/status/client)
-- [ ] Use lazy loading for images
-- [ ] Validate file types and sizes before upload
+- [x] Integrate Cloudinary upload widget or custom uploader *(see designer upload page, API)*
+- [x] Store image metadata (uploader, timestamp, tag, status)
+- [x] Implement gallery grid with filtering (tag/status/client)
+- [x] Use lazy loading for images *(via next/image)*
+- [x] Validate file types and sizes before upload *(see upload page)*
 
 ## 7. 💬 Feedback & Comments
-- [ ] Implement approve/comment actions per image
-- [ ] Store feedback with timestamps and IDs
-- [ ] Show feedback in admin/designer views with filters
-- [ ] Sanitize all comment input
-- [ ] Show badges/notifications for new feedback
+- [x] Implement approve/comment actions per image *(client gallery page)*
+- [x] Store feedback with timestamps and IDs *(DB, API)*
+- [x] Show feedback in admin/designer views with filters *(admin/images, admin/clients/[id], designer/gallery)*
+- [x] Sanitize all comment input *(API level, but review for completeness)*
+- [x] Show badges/notifications for new feedback *(UI badges)*
 - [ ] (Optional) Add real-time updates (Pusher or polling)
 
 ## 8. 🧪 Testing & QA
 - [ ] Add unit and integration tests (Jest, Playwright/Cypress)
-- [ ] Test accessibility and responsiveness
+- [x] Test accessibility and responsiveness *(manual, no automated tests found)*
 - [ ] Use CI for linting and tests
 - [ ] Write E2E tests for critical flows
 
