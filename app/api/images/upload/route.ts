@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadImage } from '@/lib/cloudinary';
 import db from '@/lib/prisma';
-import { DesignType } from '@prisma/client';
 
 export const runtime = 'nodejs'; // Ensure Node.js runtime for file uploads
 
@@ -12,9 +11,9 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file');
     const uploaderId = formData.get('uploaderId');
     const clientName = formData.get('clientName');
-    const designType = formData.get('designType');
+    const designTypeId = formData.get('designTypeId');
 
-    if (!file || typeof uploaderId !== 'string' || typeof clientName !== 'string' || typeof designType !== 'string') {
+    if (!file || typeof uploaderId !== 'string' || typeof clientName !== 'string' || typeof designTypeId !== 'string') {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
@@ -22,8 +21,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid file upload.' }, { status: 400 });
     }
 
-    // Validate designType is a valid Prisma enum value
-    if (!Object.values(DesignType).includes(designType as DesignType)) {
+    // Validate designTypeId exists
+    const designType = await db.designType.findUnique({ where: { id: designTypeId } });
+    if (!designType) {
       return NextResponse.json({ error: 'Invalid design type.' }, { status: 400 });
     }
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         publicId: result.public_id,
         uploaderId,
         clientName,
-        designType: designType as DesignType,
+        designTypeId,
       },
     });
 

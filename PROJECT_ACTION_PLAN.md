@@ -5,11 +5,11 @@ This file tracks the main flows and tasks for the CRM/gallery app. Mark tasks as
 ---
 
 ## 1. Admin Flow
-- [ ] Refactor admin page for better management
-- [ ] Add ability to create/edit/delete **design types**
-- [ ] Add ability to create/edit/delete **designer accounts**
-- [ ] When creating a client, ensure they appear in designer upload select
-- [ ] Ensure backend reflects all changes for other flows
+- [x] Refactor admin page for better management
+- [x] Add ability to create/edit/delete **design types**
+- [x] Add ability to create/edit/delete **designer accounts**
+- [x] When creating a client, ensure they appear in designer upload select
+- [x] Ensure backend reflects all changes for other flows
 
 ---
 

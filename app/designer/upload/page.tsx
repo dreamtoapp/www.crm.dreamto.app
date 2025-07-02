@@ -12,15 +12,11 @@ import Image from "next/image";
 
 const availableTags = ["عرض", "منتج", "منشور اجتماعي"];
 
-const designTypeOptions = [
-  { value: "LOGO", label: "شعار" },
-  { value: "IDENTITY", label: "هوية" },
-  { value: "WEBSITE", label: "موقع" },
-  { value: "PRINT", label: "مطبوعة" },
-  { value: "APP", label: "تطبيق" },
-  { value: "AD", label: "إعلان" },
-  { value: "OTHER", label: "أخرى" },
-];
+interface DesignType {
+  id: string;
+  name: string;
+  description?: string;
+}
 
 interface SelectedFile {
   file: File;
@@ -40,6 +36,9 @@ export default function DesignerUploadPage() {
   const [clients, setClients] = useState<{ id: string; key: string; name: string }[]>([]);
   const [clientsLoading, setClientsLoading] = useState(true);
   const [clientsError, setClientsError] = useState<string | null>(null);
+  const [designTypes, setDesignTypes] = useState<DesignType[]>([]);
+  const [designTypesLoading, setDesignTypesLoading] = useState(true);
+  const [designTypesError, setDesignTypesError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchClients() {
@@ -57,6 +56,24 @@ export default function DesignerUploadPage() {
       }
     }
     fetchClients();
+  }, []);
+
+  useEffect(() => {
+    async function fetchDesignTypes() {
+      setDesignTypesLoading(true);
+      setDesignTypesError(null);
+      try {
+        const res = await fetch("/api/design-types");
+        if (!res.ok) throw new Error("فشل تحميل أنواع التصاميم");
+        const data = await res.json();
+        setDesignTypes(data);
+      } catch (err: any) {
+        setDesignTypesError(err.message || "فشل تحميل أنواع التصاميم");
+      } finally {
+        setDesignTypesLoading(false);
+      }
+    }
+    fetchDesignTypes();
   }, []);
 
   function handleClientSelect(value: string) {
@@ -120,7 +137,9 @@ export default function DesignerUploadPage() {
         formData.append("file", item.file);
         formData.append("uploaderId", designerId as string);
         formData.append("clientName", clientName);
-        formData.append("designType", item.tag);
+        const selectedType = designTypes.find(dt => dt.id === item.tag);
+        formData.append("designTypeId", item.tag);
+        formData.append("designTypeName", selectedType?.name || "");
         const res = await fetch("/api/images/upload", {
           method: "POST",
           body: formData,
@@ -289,16 +308,22 @@ export default function DesignerUploadPage() {
                     </div>
                     <div className="pt-3">
                       <Label htmlFor={`tag-select-${index}`} className="text-xs font-medium text-foreground">نوع التصميم</Label>
-                      <Select value={item.tag} onValueChange={tag => handleTagSelect(index, tag)}>
-                        <SelectTrigger className="select-elegant">
-                          <SelectValue placeholder="اختر نوع التصميم..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {designTypeOptions.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {designTypesLoading ? (
+                        <div className="text-xs text-muted-foreground py-2">جاري تحميل الأنواع...</div>
+                      ) : designTypesError ? (
+                        <div className="text-xs text-red-600 py-2">{designTypesError}</div>
+                      ) : (
+                        <Select value={item.tag} onValueChange={tag => handleTagSelect(index, tag)}>
+                          <SelectTrigger className="select-elegant">
+                            <SelectValue placeholder="اختر نوع التصميم..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {designTypes.map(dt => (
+                              <SelectItem key={dt.id} value={dt.id}>{dt.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
                   </Card>
                 ))}
