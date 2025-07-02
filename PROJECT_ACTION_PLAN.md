@@ -123,10 +123,15 @@ Enhance the **User Interface (UI)** and **User Experience (UX)** to provide a pr
 
 ## 🚀 Next Steps (After UI/UX Phase)
 
-* Add comment system per image (client writes, designer replies)
-* Notifications for replies and uploads
-* Activity log for all roles
-* Analytics dashboard (uploads, views, tags usage)
+* Next: Drag-and-drop upload, preview, and tag auto-suggest for designer upload
+* Next: Add optional note with each image upload
+* Next: Implement comment/reply system (with backend)
+* Next: Add notifications for new comments/uploads
+* Next: Show activity log and analytics dashboard
+* Next: Admin: assign designers to clients, toggle client access, track upload history
+* Next: Integrate next-intl for Arabic/English support
+* Next: Unify design system, add error boundaries, test keyboard navigation/ARIA
+* Next: Add deployment scripts and finalize README
 
 ---
 
@@ -201,3 +206,5 @@ This app is ideal for:
 Use this list to guide your outreach, marketing, and product positioning! 
 
 // Note: The navbar now includes a dark/light mode toggle and a language switcher UI for all users. Language switching logic is not yet implemented. 
+
+Note: The designer gallery is now fully SSR, filterable, and analytics-enabled, with a modern client filter UX and full image view. 

@@ -53,7 +53,12 @@ export default async function DesignerHomePage({
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-1">معرض تصاميمي</h1>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-1 flex items-center gap-3">
+            معرض تصاميمي
+            <span className="inline-block bg-primary text-primary-foreground rounded-full px-3 py-1 text-sm font-bold align-middle">
+              {images.length} تصميم
+            </span>
+          </h1>
           <p className="text-base text-muted-foreground">هنا تجد جميع تصاميمك المرفوعة مع تفاصيلها</p>
         </div>
         <Link href={`/designer/${identifier}/upload`}>
