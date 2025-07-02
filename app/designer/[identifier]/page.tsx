@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { UploadIcon, GalleryHorizontalIcon, ImageIcon, CalendarIcon, MessageCircleIcon, UserIcon, InfoIcon, FileIcon, RulerIcon, XCircleIcon } from 'lucide-react';
 import { Suspense } from 'react';
+import DesignerGalleryFilters from '@/components/dashboard/DesignerGalleryFilters';
 
 export default async function DesignerHomePage({
   params,
@@ -63,37 +64,13 @@ export default async function DesignerHomePage({
         </Link>
       </div>
       {/* Filters */}
-      <form className="flex flex-wrap gap-4 items-center mb-8" method="get">
-        <select
-          name="clientId"
-          defaultValue={clientId}
-          className="min-w-[160px] border rounded-md px-3 py-2 text-sm"
-        >
-          <option value="all">كل العملاء</option>
-          {clients.map(client => (
-            <option key={client.id} value={client.id}>{client.name || client.identifier}</option>
-          ))}
-        </select>
-        <select
-          name="designTypeId"
-          defaultValue={designTypeId}
-          className="min-w-[160px] border rounded-md px-3 py-2 text-sm"
-        >
-          <option value="all">كل الأنواع</option>
-          {designTypes.map(dt => (
-            <option key={dt.id} value={dt.id}>{dt.name}</option>
-          ))}
-        </select>
-        <Button variant="default" size="sm" type="submit" className="gap-1 rtl:flex-row-reverse">تطبيق الفلاتر</Button>
-        {(clientId !== 'all' || designTypeId !== 'all') && (
-          <Link href={`/designer/${identifier}`}> 
-            <Button variant="ghost" size="sm" type="button" className="gap-1 rtl:flex-row-reverse">
-              <XCircleIcon className="size-4" />
-              مسح الفلاتر
-            </Button>
-          </Link>
-        )}
-      </form>
+      <DesignerGalleryFilters
+        clients={clients}
+        designTypes={designTypes}
+        selectedClient={clientId}
+        selectedDesignType={designTypeId}
+        basePath={`/designer/${identifier}`}
+      />
       {/* Content */}
       {images.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center text-muted-foreground gap-4">
