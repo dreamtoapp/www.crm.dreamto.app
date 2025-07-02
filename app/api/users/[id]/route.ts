@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     const user = await db.user.findUnique({
-      where: { id },
+      where: { identifier: id },
       include: {
         images: true,
         comments: true,
@@ -40,7 +40,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { id } = await params;
   try {
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
-    await db.user.delete({ where: { id } });
+    await db.user.delete({ where: { identifier: id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete user', details: String(error) }, { status: 500 });

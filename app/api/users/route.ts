@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/prisma';
+import { Role } from '@prisma/client';
 
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const role = (searchParams.get('role') as Role) || Role.CLIENT;
     const users = await db.user.findMany({
-      where: { role: 'CLIENT' },
+      where: { role },
       include: { images: true },
       orderBy: { createdAt: 'desc' },
     });
-    // Map to expected client format
-    const clients = users.map((u: any) => ({
+    // Map to expected format
+    const result = users.map((u: any) => ({
       id: u.id,
       key: u.identifier,
       name: u.name,
@@ -19,9 +22,9 @@ export async function GET(req: NextRequest) {
       images: u.images.length,
       createdAt: u.createdAt.toISOString().slice(0, 10),
     }));
-    return NextResponse.json(clients);
+    return NextResponse.json(result);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch clients', details: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch users', details: String(error) }, { status: 500 });
   }
 }
 

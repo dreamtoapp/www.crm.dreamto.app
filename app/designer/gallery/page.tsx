@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,60 +8,72 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { EyeIcon, FilterIcon, GalleryHorizontalIcon, MessageCircleIcon, CheckCircle2Icon, ClockIcon } from "lucide-react";
 
-// Mock data for clients and their images
-const clientImages = {
-  "ABC12345": [
-    {
-      id: "1",
-      url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-      tag: "عرض",
-      status: "معلق",
-      uploadDate: "2024-07-01",
-      comments: [],
-    },
-    {
-      id: "2",
-      url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
-      tag: "منتج",
-      status: "معتمد",
-      uploadDate: "2024-07-02",
-      comments: [{ text: "جميل!", date: "2024-07-01 10:00" }],
-    },
-  ],
-  "XYZ67890": [
-    {
-      id: "3",
-      url: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
-      tag: "منشور اجتماعي",
-      status: "تم التعليق",
-      uploadDate: "2024-06-30",
-      comments: [{ text: "يرجى تعديل اللون", date: "2024-07-02 15:30" }],
-    },
-  ],
-  "QWE456RT": [],
-};
+// Remove mock data for clients and images
+// const clientImages = ...
+// const availableClients = ...
 
-const availableClients = [
-  { id: "ABC12345", name: "شركة ألف" },
-  { id: "XYZ67890", name: "مؤسسة بيت التصميم" },
-  { id: "QWE456RT", name: "عميل تجريبي" },
+const availableTags = [
+  { label: "الكل", value: "ALL" },
+  { label: "شعار", value: "LOGO" },
+  { label: "هوية", value: "IDENTITY" },
+  { label: "موقع", value: "WEBSITE" },
+  { label: "مطبوعة", value: "PRINT" },
+  { label: "تطبيق", value: "APP" },
+  { label: "إعلان", value: "AD" },
+  { label: "أخرى", value: "OTHER" },
 ];
 
-const availableTags = ["الكل", "عرض", "منتج", "منشور اجتماعي"];
-
-type ViewImageState = { open: boolean; url: string; tag: string; status: string };
-
 export default function DesignerGalleryPage() {
+  const [clients, setClients] = useState<{ id: string; name: string; key: string }[]>([]);
+  const [clientsLoading, setClientsLoading] = useState(true);
+  const [clientsError, setClientsError] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState("");
-  const [selectedTag, setSelectedTag] = useState("الكل");
-  const [viewImage, setViewImage] = useState<ViewImageState>({ open: false, url: "", tag: "", status: "" });
+  const [selectedTag, setSelectedTag] = useState("ALL");
+  const [images, setImages] = useState<any[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const [imagesError, setImagesError] = useState<string | null>(null);
+  const [viewImage, setViewImage] = useState<{ open: boolean; url: string; tag: string; status: string }>({ open: false, url: "", tag: "", status: "" });
 
-  const currentImages = selectedClient ? (clientImages[selectedClient as keyof typeof clientImages] || []) : [];
-  const filteredImages = selectedTag === "الكل"
-    ? currentImages
-    : currentImages.filter(img => img.tag === selectedTag);
+  useEffect(() => {
+    async function fetchClients() {
+      setClientsLoading(true);
+      setClientsError(null);
+      try {
+        const res = await fetch("/api/users");
+        if (!res.ok) throw new Error("فشل تحميل قائمة العملاء");
+        const data = await res.json();
+        setClients(data);
+      } catch (err: any) {
+        setClientsError(err.message || "فشل تحميل العملاء");
+      } finally {
+        setClientsLoading(false);
+      }
+    }
+    fetchClients();
+  }, []);
 
-  const clientName = availableClients.find(c => c.id === selectedClient)?.name || "";
+  useEffect(() => {
+    if (!selectedClient) return;
+    async function fetchImages() {
+      setImagesLoading(true);
+      setImagesError(null);
+      try {
+        let url = `/api/images?clientName=${encodeURIComponent(clients.find(c => c.id === selectedClient)?.name || "")}`;
+        if (selectedTag && selectedTag !== "ALL") url += `&designType=${selectedTag}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("فشل تحميل التصاميم");
+        const data = await res.json();
+        setImages(data);
+      } catch (err: any) {
+        setImagesError(err.message || "فشل تحميل التصاميم");
+      } finally {
+        setImagesLoading(false);
+      }
+    }
+    fetchImages();
+  }, [selectedClient, selectedTag, clients]);
+
+  const clientName = clients.find(c => c.id === selectedClient)?.name || "";
 
   function handleViewImage(url: string, tag: string, status: string) {
     setViewImage({ open: true, url, tag, status });
@@ -114,7 +126,7 @@ export default function DesignerGalleryPage() {
                 <SelectValue placeholder="اختر العميل..." />
               </SelectTrigger>
               <SelectContent>
-                {availableClients.map(client => (
+                {clients.map(client => (
                   <SelectItem key={client.id} value={client.id}>
                     <div className="flex items-center gap-3">
                       <Badge className="badge-commented font-mono text-xs">{client.id}</Badge>
@@ -143,7 +155,7 @@ export default function DesignerGalleryPage() {
               </SelectTrigger>
               <SelectContent>
                 {availableTags.map(tag => (
-                  <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                  <SelectItem key={tag.value} value={tag.value}>{tag.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -164,7 +176,7 @@ export default function DesignerGalleryPage() {
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-primary-600">{currentImages.length}</p>
+                <p className="text-2xl font-bold text-primary-600">{images.length}</p>
                 <p className="text-sm text-muted-foreground">إجمالي التصاميم</p>
               </div>
             </div>
@@ -182,7 +194,7 @@ export default function DesignerGalleryPage() {
               <p className="text-muted-foreground">حدد عميلاً من القائمة أعلاه لاستعراض جميع التصاميم المرفوعة له</p>
             </div>
           </Card>
-        ) : filteredImages.length === 0 ? (
+        ) : images.length === 0 ? (
           <Card className="card-elegant text-center py-16">
             <div className="max-w-sm mx-auto">
               <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -190,7 +202,7 @@ export default function DesignerGalleryPage() {
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد تصاميم</h3>
               <p className="text-muted-foreground">
-                {selectedTag === "الكل" 
+                {selectedTag === "ALL" 
                   ? "لم يتم رفع أي تصاميم لهذا العميل بعد"
                   : `لا توجد تصاميم من نوع "${selectedTag}" لهذا العميل`
                 }
@@ -199,7 +211,7 @@ export default function DesignerGalleryPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredImages.map(img => (
+            {images.map(img => (
               <Card key={img.id} className="card-interactive gpu-accelerated group">
                 {/* Image Container */}
                 <div className="image-container aspect-[4/3]" onClick={() => handleViewImage(img.url, img.tag, img.status)}>
@@ -258,7 +270,7 @@ export default function DesignerGalleryPage() {
                     <div className="pt-3 border-t border-primary-100 space-y-2">
                       <h4 className="text-sm font-medium text-foreground">آخر التعليقات:</h4>
                       <div className="space-y-2 max-h-20 overflow-y-auto scrollbar-hide">
-                        {img.comments.slice(-1).map((c, i) => (
+                        {img.comments.slice(-1).map((c: any, i: number) => (
                           <div key={i} className="bg-slate-50 rounded-lg p-3">
                             <p className="text-sm text-foreground">{c.text}</p>
                             {c.date && (
