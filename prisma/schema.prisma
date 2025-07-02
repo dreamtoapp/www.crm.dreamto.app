@@ -22,6 +22,7 @@ model User {
   images     Image[]
   comments   Comment[] @relation("UserComments")
   createdAt  DateTime @default(now())
+  clientImages Image[] @relation("ClientImages")
 }
 
 model Image {
@@ -30,11 +31,18 @@ model Image {
   publicId      String      // Cloudinary public_id
   uploaderId    String
   uploader      User        @relation(fields: [uploaderId], references: [id])
+  clientId      String
+  client        User        @relation("ClientImages", fields: [clientId], references: [id])
   clientName    String
   designTypeId  String
   designType    DesignType  @relation(fields: [designTypeId], references: [id])
   comments      Comment[]   @relation("ImageComments")
   createdAt     DateTime    @default(now())
+  // Technical info
+  format        String?
+  bytes         Int?
+  width         Int?
+  height        Int?
 }
 
 model Comment {

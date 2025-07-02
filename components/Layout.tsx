@@ -52,7 +52,7 @@ export default function Layout({ children }: LayoutProps) {
       } else if (user.role === "DESIGNER") {
         router.push(`/designer/${user.identifier}`);
       } else if (user.role === "ADMIN") {
-        router.push(`/admin/clients`);
+        router.push(`/admin`);
       } else {
         toast.error("نوع مستخدم غير معروف. الرجاء التواصل مع الإدارة.");
       }

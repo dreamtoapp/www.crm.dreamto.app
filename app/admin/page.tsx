@@ -1,25 +1,72 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminClientsPage from "./clients/page";
 import AdminDesignersPage from "./designers/page";
 import AdminDesignTypesPage from "./design-types/page";
-// Placeholder imports for designers and design types
-// You will implement these components next
-// import AdminDesignersPage from "./designers/page";
-// import AdminDesignTypesPage from "./design-types/page";
+import { Card } from "@/components/ui/card";
+import { UsersIcon, SparklesIcon, GalleryHorizontalIcon } from "lucide-react";
 
 export default function AdminDashboardPage() {
-  const [tab, setTab] = useState("clients");
+  const [stats, setStats] = useState({ clients: 0, designers: 0, types: 0 });
+
+  useEffect(() => {
+    async function fetchStats() {
+      const [usersRes, typesRes] = await Promise.all([
+        fetch("/api/users"),
+        fetch("/api/design-types"),
+      ]);
+      const users = await usersRes.json();
+      const types = await typesRes.json();
+      setStats({
+        clients: users.filter((u: any) => u.role === "CLIENT").length,
+        designers: users.filter((u: any) => u.role === "DESIGNER").length,
+        types: types.length,
+      });
+    }
+    fetchStats();
+  }, []);
+
   return (
     <div className="min-h-screen p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center">لوحة تحكم الإدارة</h1>
-        <Tabs value={tab} onValueChange={setTab} className="w-full">
+        {/* Analytics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <UsersIcon className="size-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">إجمالي العملاء</p>
+              <p className="text-2xl font-bold text-foreground">{stats.clients}</p>
+            </div>
+          </Card>
+          <Card className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+              <SparklesIcon className="size-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">إجمالي المصممين</p>
+              <p className="text-2xl font-bold text-foreground">{stats.designers}</p>
+            </div>
+          </Card>
+          <Card className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+              <GalleryHorizontalIcon className="size-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">أنواع التصاميم</p>
+              <p className="text-2xl font-bold text-foreground">{stats.types}</p>
+            </div>
+          </Card>
+        </div>
+        {/* Tabs for management */}
+        <Tabs defaultValue="clients" className="w-full">
           <TabsList className="flex justify-center gap-4 mb-8">
             <TabsTrigger value="clients">العملاء</TabsTrigger>
             <TabsTrigger value="designers">المصممين</TabsTrigger>
-            <TabsTrigger value="designTypes">أنواع التصاميم</TabsTrigger>
+            <TabsTrigger value="types">أنواع التصاميم</TabsTrigger>
           </TabsList>
           <TabsContent value="clients">
             <AdminClientsPage />
@@ -27,7 +74,7 @@ export default function AdminDashboardPage() {
           <TabsContent value="designers">
             <AdminDesignersPage />
           </TabsContent>
-          <TabsContent value="designTypes">
+          <TabsContent value="types">
             <AdminDesignTypesPage />
           </TabsContent>
         </Tabs>

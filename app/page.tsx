@@ -249,21 +249,54 @@ function LoadingSkeleton() {
 // --- Main HomePage Component ---
 export default function HomePage() {
   const [images, setImages] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const limit = 20;
 
-  useEffect(() => {
+  // Fetch images paginated
+  const fetchImages = useCallback(async () => {
+    if (loading || !hasMore) return;
     setLoading(true);
-    fetch('/api/images')
-      .then(res => res.json())
-      .then(data => {
-        setImages(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    try {
+      const res = await fetch(`/api/images?page=${page}&limit=${limit}`);
+      const data = await res.json();
+      if (Array.isArray(data.images)) {
+        setImages(prev => [...prev, ...data.images]);
+        setHasMore(data.hasMore);
+        setPage(prev => prev + 1);
+      } else {
+        setHasMore(false);
+      }
+    } catch {
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+      setInitialLoading(false);
+    }
+  }, [page, hasMore, loading]);
+
+  // Initial load
+  useEffect(() => {
+    setImages([]);
+    setPage(1);
+    setHasMore(true);
+    setInitialLoading(true);
   }, []);
 
-  // Show only the latest 8 images for preview
-  const galleryImages = images.slice(0, 8);
+  // Load first page on mount
+  useEffect(() => {
+    if (page === 1 && images.length === 0 && hasMore) {
+      fetchImages();
+    }
+    // eslint-disable-next-line
+  }, [page, images.length, hasMore]);
+
+  // Infinite scroll hook
+  const { loadingRef } = useInfiniteScroll(() => {
+    if (!loading && hasMore) fetchImages();
+  }, hasMore);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex flex-col items-center animate-fade-in">
@@ -284,28 +317,27 @@ export default function HomePage() {
       {/* Gallery Preview */}
       <section id="gallery" className="w-full max-w-6xl mx-auto py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {loading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <Card key={i} className="h-56 animate-pulse bg-slate-100 rounded-2xl" />
-            ))
-          ) : (
-            galleryImages.map(img => (
-              <Card key={img.id} className="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer">
-                <div className="relative w-full h-40 bg-muted flex items-center justify-center">
-                  <Image src={img.url} alt={img.type || 'تصميم'} fill className="object-contain group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <div className="p-4 flex flex-col gap-2">
-                  <Badge variant="secondary" className="w-fit">{img.type || 'تصميم'}</Badge>
-                  <span className="font-bold text-primary-800 truncate">{img.client || 'عميل'}</span>
-                </div>
-              </Card>
-            ))
-          )}
+          {images.map((img, i) => (
+            <Card key={img.id || i} className="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer">
+              <div className="relative w-full h-40 bg-muted flex items-center justify-center">
+                <Image src={img.url} alt={img.type || 'Design'} fill className="object-contain group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <div className="p-4 flex flex-col gap-2">
+                <Badge variant="secondary" className="w-fit">{img.type || 'Design'}</Badge>
+                <span className="font-bold text-primary-800 truncate">{img.client || 'Client'}</span>
+              </div>
+            </Card>
+          ))}
+          {initialLoading && Array.from({ length: 8 }).map((_, i) => (
+            <Card key={"skeleton-" + i} className="h-56 animate-pulse bg-slate-100 rounded-2xl" />
+          ))}
         </div>
-        <div className="text-center mt-6">
-          <Button asChild variant="link" className="text-primary-700 text-lg font-bold"> 
-            <Link href="#">عرض جميع التصاميم</Link>
-          </Button>
+        {/* Infinite scroll loading indicator */}
+        <div ref={loadingRef} className="flex justify-center items-center py-6 min-h-[40px]">
+          {loading && !initialLoading && <span className="text-gray-400">Loading more...</span>}
+          {!hasMore && !initialLoading && images.length > 0 && (
+            <span className="text-gray-400">No more images to show.</span>
+          )}
         </div>
       </section>
       {/* Trust Section */}

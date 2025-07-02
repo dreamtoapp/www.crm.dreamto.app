@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { UploadCloudIcon, FileImageIcon, CheckCircle2Icon, XCircleIcon, ImageIcon, TrashIcon } from "lucide-react";
+import { UploadCloudIcon, FileImageIcon, CheckCircle2Icon, XCircleIcon, ImageIcon, TrashIcon, GalleryHorizontalIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const availableTags = ["عرض", "منتج", "منشور اجتماعي"];
 
@@ -26,7 +27,7 @@ interface SelectedFile {
 
 export default function DesignerUploadPage() {
   const params = useParams();
-  const designerIdentifier = params?.clientId || params?.designerId || "D456";
+  const identifier = Array.isArray(params?.identifier) ? params.identifier[0] : params?.identifier;
   const [designerId, setDesignerId] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
@@ -78,11 +79,11 @@ export default function DesignerUploadPage() {
   }, []);
 
   useEffect(() => {
-    if (!designerIdentifier) return;
-    fetch(`/api/users/${designerIdentifier}`)
+    if (!identifier) return;
+    fetch(`/api/users/${identifier}`)
       .then(res => res.json())
       .then(data => setDesignerId(data.id));
-  }, [designerIdentifier]);
+  }, [identifier]);
 
   function handleClientSelect(value: string) {
     setSelectedClient(value);
@@ -149,6 +150,7 @@ export default function DesignerUploadPage() {
         const selectedType = designTypes.find(dt => dt.id === item.tag);
         formData.append("designTypeId", item.tag);
         formData.append("designTypeName", selectedType?.name || "");
+        formData.append("identifier", identifier || "");
         const res = await fetch("/api/images/upload", {
           method: "POST",
           body: formData,
@@ -173,6 +175,14 @@ export default function DesignerUploadPage() {
 
   return (
     <div className="min-h-screen p-4 animate-fade-in w-full">
+      <div className="flex justify-end mb-6">
+        <Link href={`/designer/${identifier}`}>
+          <Button variant="secondary" size="lg" className="gap-2 rtl:flex-row-reverse">
+            <GalleryHorizontalIcon className="size-5" />
+            المعرض
+          </Button>
+        </Link>
+      </div>
       <div className="w-full">
         {/* Header Section */}
         <div className="mb-4 text-right">
