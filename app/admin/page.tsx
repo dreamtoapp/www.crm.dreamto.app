@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminClientsPage from "./clients/page";
 import AdminDesignersPage from "./designers/page";
+import AdminDesignTypesPage from "./design-types/page";
 // Placeholder imports for designers and design types
 // You will implement these components next
 // import AdminDesignersPage from "./designers/page";
@@ -27,8 +28,7 @@ export default function AdminDashboardPage() {
             <AdminDesignersPage />
           </TabsContent>
           <TabsContent value="designTypes">
-            {/* TODO: Implement AdminDesignTypesPage */}
-            <div className="text-center text-muted-foreground py-12">إدارة أنواع التصاميم (قريبًا)</div>
+            <AdminDesignTypesPage />
           </TabsContent>
         </Tabs>
       </div>

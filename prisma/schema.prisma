@@ -25,15 +25,16 @@ model User {
 }
 
 model Image {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  url         String     // Cloudinary URL
-  publicId    String     // Cloudinary public_id
-  uploaderId  String
-  uploader    User       @relation(fields: [uploaderId], references: [id])
-  clientName  String
-  designType  DesignType
-  comments    Comment[]  @relation("ImageComments")
-  createdAt   DateTime   @default(now())
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  url           String      // Cloudinary URL
+  publicId      String      // Cloudinary public_id
+  uploaderId    String
+  uploader      User        @relation(fields: [uploaderId], references: [id])
+  clientName    String
+  designTypeId  String
+  designType    DesignType  @relation(fields: [designTypeId], references: [id])
+  comments      Comment[]   @relation("ImageComments")
+  createdAt     DateTime    @default(now())
 }
 
 model Comment {
@@ -52,12 +53,16 @@ enum Role {
   ADMIN
 }
 
-enum DesignType {
-  LOGO
-  IDENTITY
-  WEBSITE
-  PRINT
-  APP
-  AD
-  OTHER
+model DesignType {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  description String?
+  images      Image[]
+  createdAt   DateTime @default(now())
 }
+
+// MANUAL MIGRATION STEPS:
+// 1. Remove the old DesignType enum from your DB (if needed)
+// 2. Create the new DesignType collection/table
+// 3. Update all Image records to reference designTypeId (not enum)
+// 4. Update your backend/frontend to use the new model
