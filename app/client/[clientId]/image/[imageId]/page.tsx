@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, XCircle, MessageCircle, Clock, Info, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import ImageApprovalActions from '@/components/client/ImageApprovalActions';
 import ImageComments from '@/components/client/ImageComments';
-import RevisionRulesAgreement from '@/components/client/RevisionRulesAgreement';
+import ClientImageActionsSection from '@/components/client/ClientImageActionsSection';
 
 export default async function ClientImageDetailPage({
   params,
@@ -93,8 +93,6 @@ export default async function ClientImageDetailPage({
           </Link>
         </div>
 
-        {/* Revision Rules Agreement Section (Client Component) */}
-        <RevisionRulesAgreement clientId={clientId} />
         {/* Revision Counter Message */}
         {maxRevisionRequests > 0 && (
           <div className="mb-2 flex items-center justify-center">
@@ -170,10 +168,10 @@ export default async function ClientImageDetailPage({
 
           {/* Actions & Comments Section */}
           <div className="space-y-6">
-            <ImageApprovalActions 
+            <ClientImageActionsSection
+              clientId={clientId}
               imageId={image.id}
               currentStatus={image.status || 'PENDING'}
-              clientId={clientId}
               maxRevisionRequests={maxRevisionRequests}
               revisionRequestCount={image.revisionRequestCount}
             />

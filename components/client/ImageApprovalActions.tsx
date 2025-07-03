@@ -160,7 +160,8 @@ export default function ImageApprovalActions({
   const statusInfo = getStatusInfo(currentStatus);
   const isPending = currentStatus === 'PENDING';
   const reachedLimit = revisionRequestCount >= maxRevisionRequests;
-  const canSendRevision = !isSubmitting && feedback.trim() && (!reachedLimit) && rulesAgreed;
+  const canOpenFeedbackForm = rulesAgreed && !reachedLimit;
+  const canSendRevision = !isSubmitting && feedback.trim();
 
   return (
     <Card>
@@ -199,11 +200,13 @@ export default function ImageApprovalActions({
               
               <Button
                 onClick={() => setShowFeedbackForm(true)}
-                disabled={isSubmitting || reachedLimit}
+                disabled={!canOpenFeedbackForm}
                 variant="outline"
+                className="flex items-center gap-2"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 طلب تعديل
+                <span className="ml-1 text-xs text-muted-foreground font-normal">{revisionRequestCount}/{maxRevisionRequests}</span>
               </Button>
             </div>
             {reachedLimit && (
