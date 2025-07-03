@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { GalleryHorizontalIcon, ImageIcon, InfoIcon } from 'lucide-react';
+import { GalleryHorizontalIcon, ImageIcon, InfoIcon, CheckCircle, XCircle, MessageCircle, Clock } from 'lucide-react';
 import DesignerGalleryFilters from '@/components/dashboard/DesignerGalleryFilters';
 
 export default async function ClientGalleryPage({
@@ -38,6 +38,25 @@ export default async function ClientGalleryPage({
   // Unique tags for filter dropdown (only if tag property exists)
   const uniqueTags = Array.from(new Set(uniqueImages.map(img => typeof (img as any).tag === 'string' && (img as any).tag ? (img as any).tag : null).filter((t): t is string => typeof t === 'string' && t.length > 0)));
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      PENDING: { label: 'في انتظار المراجعة', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+      APPROVED: { label: 'تمت الموافقة', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+      REJECTED: { label: 'مرفوض', color: 'bg-red-100 text-red-800', icon: XCircle },
+      REVISION_REQUESTED: { label: 'طلب تعديل', color: 'bg-blue-100 text-blue-800', icon: MessageCircle }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
+    const IconComponent = config.icon;
+    
+    return (
+      <Badge className={`${config.color} border-0 text-xs`}>
+        <IconComponent className="w-3 h-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
+  };
+
   return (
     <div className="min-h-screen p-6 animate-fade-in" dir="rtl">
       <div className="max-w-7xl mx-auto">
@@ -54,13 +73,13 @@ export default async function ClientGalleryPage({
           </p>
         </div>
         {/* Filter Section */}
-        <DesignerGalleryFilters
+        {/* <DesignerGalleryFilters
           clients={[]}
           designTypes={designTypes}
           selectedClient={''}
           selectedDesignType={designTypeId}
           basePath={`/client/${clientId}`}
-        />
+        /> */}
         {/* Tag Filter (SSR) */}
         {uniqueTags.length > 0 && (
           <div className="flex flex-wrap gap-4 items-center mb-8">
@@ -111,13 +130,17 @@ export default async function ClientGalleryPage({
                         />
                       ) : (
                         <ImageIcon className="size-12 text-gray-300 mx-auto my-12" />
-        )}
-      </div>
+                      )}
+                      {/* Status Badge Overlay */}
+                      <div className="absolute top-2 left-2">
+                        {getStatusBadge(img.status || 'PENDING')}
+                      </div>
+                    </div>
                     <CardHeader className="p-4 flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <Badge>{tagValue}</Badge>
                         <Badge variant="secondary">{designTypes.find(dt => dt.id === img.designTypeId)?.name || 'نوع غير معروف'}</Badge>
-          </div>
+                      </div>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
                         <InfoIcon className="size-4" />
                         {img.publicId}
@@ -127,9 +150,9 @@ export default async function ClientGalleryPage({
                 </Link>
               );
             })}
-                    </div>
-                )}
-              </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 } 

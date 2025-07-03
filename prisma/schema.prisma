@@ -38,6 +38,11 @@ model Image {
   designType    DesignType  @relation(fields: [designTypeId], references: [id])
   comments      Comment[]   @relation("ImageComments")
   createdAt     DateTime    @default(now())
+  // Approval system fields
+  status        ApprovalStatus @default(PENDING)
+  clientFeedback String?
+  approvedAt    DateTime?
+  rejectedAt    DateTime?
   // Technical info
   format        String?
   bytes         Int?
@@ -74,3 +79,10 @@ model DesignType {
 // 2. Create the new DesignType collection/table
 // 3. Update all Image records to reference designTypeId (not enum)
 // 4. Update your backend/frontend to use the new model
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISION_REQUESTED
+}

@@ -3,24 +3,74 @@ import db from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    if (!id) return NextResponse.json({ error: 'Missing image ID' }, { status: 400 });
-    const { authorId, content } = await req.json();
-    if (!authorId || !content) return NextResponse.json({ error: 'Missing authorId or content' }, { status: 400 });
+    const { content } = await req.json();
+    const { id: imageId } = await params;
+
+    // Validate content
+    if (!content || !content.trim()) {
+      return NextResponse.json(
+        { error: 'Comment content is required' },
+        { status: 400 }
+      );
+    }
+
+    // Find the image
+    const image = await db.image.findUnique({
+      where: { id: imageId }
+    });
+
+    if (!image) {
+      return NextResponse.json(
+        { error: 'Image not found' },
+        { status: 404 }
+      );
+    }
+
+    // For now, we'll use the client as the author
+    // In a real app, you'd get the current user from authentication
+    const client = await db.user.findUnique({
+      where: { id: image.clientId }
+    });
+
+    if (!client) {
+      return NextResponse.json(
+        { error: 'Client not found' },
+        { status: 404 }
+      );
+    }
+
+    // Create the comment
     const comment = await db.comment.create({
       data: {
-        imageId: id,
-        authorId,
-        content,
+        content: content.trim(),
+        imageId: imageId,
+        authorId: client.id
       },
       include: {
-        author: { select: { id: true, name: true, role: true, identifier: true } },
-      },
+        author: {
+          select: {
+            name: true,
+            role: true
+          }
+        }
+      }
     });
-    return NextResponse.json(comment);
+
+    return NextResponse.json({
+      success: true,
+      comment: comment
+    });
+
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to add comment', details: String(error) }, { status: 500 });
+    console.error('Error adding comment:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 } 
