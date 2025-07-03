@@ -58,22 +58,22 @@ export default function ImageApprovalActions({
     const statusConfig = {
       PENDING: { 
         label: 'في انتظار المراجعة', 
-        color: 'bg-yellow-100 text-yellow-800',
+        color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
         description: 'يمكنك مراجعة التصميم واتخاذ قرار بالموافقة أو الرفض أو طلب تعديل'
       },
       APPROVED: { 
         label: 'تمت الموافقة', 
-        color: 'bg-green-100 text-green-800',
+        color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
         description: 'تمت الموافقة على هذا التصميم'
       },
       REJECTED: { 
         label: 'مرفوض', 
-        color: 'bg-red-100 text-red-800',
+        color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
         description: 'تم رفض هذا التصميم'
       },
       REVISION_REQUESTED: { 
         label: 'طلب تعديل', 
-        color: 'bg-blue-100 text-blue-800',
+        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
         description: 'تم طلب تعديل على هذا التصميم'
       }
     };
@@ -104,7 +104,7 @@ export default function ImageApprovalActions({
               <Button
                 onClick={() => handleAction('approve')}
                 disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-success hover:bg-success/90 text-success-foreground"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 موافقة
@@ -131,7 +131,7 @@ export default function ImageApprovalActions({
 
             {/* Feedback Form */}
             {showFeedbackForm && (
-              <div className="space-y-3 p-4 border rounded-lg bg-gray-50">
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     ملاحظات التعديل المطلوبة:
@@ -148,7 +148,7 @@ export default function ImageApprovalActions({
                   <Button
                     onClick={() => handleAction('revision')}
                     disabled={isSubmitting || !feedback.trim()}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     <Send className="w-4 h-4 mr-2" />
                     إرسال طلب التعديل

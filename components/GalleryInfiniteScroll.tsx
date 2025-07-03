@@ -85,7 +85,7 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {dedupedImages.map((img, i) => (
-          <Card key={img.id} className="overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 group bg-white border-0">
+          <Card key={img.id} className="overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 group bg-card border-0">
             <div className="relative aspect-[4/3] bg-muted flex items-center justify-center overflow-hidden">
               <Image
                 src={img.url}
@@ -105,14 +105,14 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
                 <Avatar className="w-8 h-8 bg-primary/10 text-primary font-bold">
                   <AvatarFallback>{(img.clientName || img.client?.name || 'C')[0]}</AvatarFallback>
                 </Avatar>
-                <div className="font-semibold text-primary-800 truncate">{img.clientName || img.client?.name || 'Client'}</div>
+                <div className="font-semibold text-primary truncate">{img.clientName || img.client?.name || 'Client'}</div>
               </div>
-              <div className="flex flex-col gap-1 mt-2 text-xs text-gray-500">
+              <div className="flex flex-col gap-1 mt-2 text-xs text-muted-foreground">
                 <div>
-                  <span className="font-semibold text-gray-700">Uploaded:</span> {img.createdAt ? new Date(img.createdAt).toLocaleDateString() : "Unknown"}
+                  <span className="font-semibold text-foreground">Uploaded:</span> {img.createdAt ? new Date(img.createdAt).toLocaleDateString() : "Unknown"}
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-700">Size:</span> {img.width && img.height ? `${img.width}x${img.height}` : "Unknown"}
+                  <span className="font-semibold text-foreground">Size:</span> {img.width && img.height ? `${img.width}x${img.height}` : "Unknown"}
                 </div>
               </div>
             </div>
@@ -120,30 +120,30 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
         ))}
         {/* Loading skeletons */}
         {loading && Array.from({ length: 4 }).map((_, i) => (
-          <Card key={"skeleton-" + i} className="overflow-hidden rounded-2xl shadow-lg bg-white border-0">
-            <div className="relative aspect-[4/3] bg-gray-200 animate-pulse">
+          <Card key={"skeleton-" + i} className="overflow-hidden rounded-2xl shadow-lg bg-card border-0">
+            <div className="relative aspect-[4/3] bg-muted animate-pulse">
               {/* Image skeleton */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted/50 animate-pulse" />
               {/* Badge skeleton */}
               <div className="absolute top-2 left-2">
-                <div className="w-16 h-6 bg-gray-300 rounded-full animate-pulse" />
+                <div className="w-16 h-6 bg-muted-foreground/20 rounded-full animate-pulse" />
               </div>
             </div>
             <div className="p-4 flex flex-col gap-2">
               {/* Avatar and name skeleton */}
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse" />
-                <div className="h-4 bg-gray-300 rounded w-24 animate-pulse" />
+                <div className="w-8 h-8 bg-muted-foreground/20 rounded-full animate-pulse" />
+                <div className="h-4 bg-muted-foreground/20 rounded w-24 animate-pulse" />
               </div>
               {/* Text skeletons */}
               <div className="flex flex-col gap-1 mt-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-12 h-3 bg-gray-300 rounded animate-pulse" />
-                  <div className="w-20 h-3 bg-gray-300 rounded animate-pulse" />
+                  <div className="w-12 h-3 bg-muted-foreground/20 rounded animate-pulse" />
+                  <div className="w-20 h-3 bg-muted-foreground/20 rounded animate-pulse" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-3 bg-gray-300 rounded animate-pulse" />
-                  <div className="w-16 h-3 bg-gray-300 rounded animate-pulse" />
+                  <div className="w-8 h-3 bg-muted-foreground/20 rounded animate-pulse" />
+                  <div className="w-16 h-3 bg-muted-foreground/20 rounded animate-pulse" />
                 </div>
               </div>
             </div>
@@ -151,9 +151,9 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
         ))}
         {/* Infinite scroll loading indicator */}
         <div ref={loadingRef} className="col-span-full flex justify-center items-center py-6 min-h-[40px]">
-          {loading && <span className="text-gray-400">Loading more...</span>}
+          {loading && <span className="text-muted-foreground">Loading more...</span>}
           {!hasMore && dedupedImages.length > 0 && (
-            <span className="text-gray-400">No more images to show.</span>
+            <span className="text-muted-foreground">No more images to show.</span>
           )}
         </div>
       </div>

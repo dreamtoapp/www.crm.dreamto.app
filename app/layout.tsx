@@ -5,6 +5,7 @@ import Layout from "@/components/Layout";
 // import "@fontsource/ibm-plex-sans-arabic/400.css";
 // import "@fontsource/ibm-plex-sans-arabic/700.css";
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,13 +28,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-arabic antialiased`}
         style={{ fontFamily: 'IBM Plex Sans Arabic, Cairo, Tajawal, Arial, sans-serif' }}
       >
-        <Layout>{children}</Layout>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Layout>{children}</Layout>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

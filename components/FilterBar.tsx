@@ -61,8 +61,8 @@ export default function FilterBar({ typeOptions, clientOptions }: FilterBarProps
   if (!localTypeOptions?.length || !localClientOptions?.length) {
     return (
       <div className="flex flex-wrap gap-4 mb-6">
-        <div className="w-40 h-10 bg-gray-100 animate-pulse rounded" />
-        <div className="w-40 h-10 bg-gray-100 animate-pulse rounded" />
+        <div className="w-40 h-10 bg-muted animate-pulse rounded" />
+        <div className="w-40 h-10 bg-muted animate-pulse rounded" />
       </div>
     );
   }
@@ -102,7 +102,7 @@ export default function FilterBar({ typeOptions, clientOptions }: FilterBarProps
       {(selectedType || selectedClient) && (
         <button
           onClick={handleClearFilters}
-          className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors duration-200"
+                      className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 text-muted-foreground rounded-md transition-colors duration-200"
         >
           مسح الفلاتر
         </button>
