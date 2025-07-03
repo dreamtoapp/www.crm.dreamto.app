@@ -33,8 +33,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid parentId' }, { status: 400 });
     }
   }
+  // Fetch the image to get designerId
+  const image = await db.image.findUnique({ where: { id: imageId } });
+  if (!image) {
+    return NextResponse.json({ error: 'Image not found' }, { status: 404 });
+  }
+  // Fetch the user to get authorRole
+  const user = await db.user.findUnique({ where: { id: authorId } });
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
   const comment = await db.comment.create({
-    data: { imageId, authorId, content, parentId },
+    data: {
+      imageId,
+      authorId,
+      content,
+      parentId,
+      designerId: image.uploaderId,
+      authorRole: user.role,
+    },
     include: {
       author: { select: { id: true, name: true, role: true } },
     },

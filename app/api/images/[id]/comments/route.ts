@@ -43,7 +43,7 @@ export async function POST(
         content: content.trim(),
         imageId,
         authorId,
-        designerId: image.designerId || image.uploaderId, // use correct field
+        designerId: image.uploaderId,
         authorRole: user.role,
         parentId: parentId || null,
         isDeleted: false,

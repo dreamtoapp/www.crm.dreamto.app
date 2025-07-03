@@ -3,6 +3,7 @@ import GalleryInfiniteScroll from "@/components/GalleryInfiniteScroll";
 import db from "@/lib/prisma";
 import Image from "next/image";
 import { GalleryHorizontalIcon, UsersIcon, ShieldCheckIcon, ClockIcon, SmileIcon } from "lucide-react";
+import Link from 'next/link';
 
 function HeroSection() {
   return (
@@ -110,7 +111,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const clientOptions = await db.user.findMany({ where: { role: "CLIENT" }, select: { id: true, name: true } });
   console.log({typeOptions, clientOptions});
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex flex-col items-center animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex flex-col items-center animate-fade-in relative">
+      {/* Simulate Landing/Clear Data Button */}
+      <Link
+        href="/clear"
+        className="fixed top-6 left-6 z-50 px-5 py-2 rounded-full bg-blue-200 text-blue-900 font-bold shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-blue-300 animate-bounce border border-blue-300"
+        style={{ boxShadow: '0 4px 24px 0 rgba(0,112,244,0.10)' }}
+      >
+        🧪 نسخة تجريبية | التعليمات وطريقة الاستخدام
+      </Link>
       <HeroSection />
       <section id="gallery" className="w-full max-w-6xl mx-auto py-10">
         <FilterBar typeOptions={typeOptions} clientOptions={clientOptions} />

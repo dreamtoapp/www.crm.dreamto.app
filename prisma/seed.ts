@@ -240,6 +240,8 @@ async function main() {
         imageId: project.id,
         authorId: commenter.id,
         content: commentText,
+        designerId: project.uploaderId,
+        authorRole: commenter.role,
       },
     });
   }
