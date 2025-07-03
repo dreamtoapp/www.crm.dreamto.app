@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/prisma';
 
 // PUT /api/revision-requests/[id]
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     // Find the revision request
     const revisionRequest = await db.revisionRequest.findUnique({ where: { id } });
