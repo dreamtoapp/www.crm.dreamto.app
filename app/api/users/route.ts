@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/prisma';
 import { Role } from '@prisma/client';
-
+// test
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
