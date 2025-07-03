@@ -33,7 +33,7 @@ export default function AdminDesignTypesPage() {
       setLoading(true);
       const res = await fetch("/api/design-types");
       const data = await res.json();
-      setDesignTypes(data);
+      setDesignTypes(data.types || []);
       setLoading(false);
     }
     fetchTypes();

@@ -8,14 +8,15 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const where: any = {};
     if (searchParams.has('clientName')) where.clientName = searchParams.get('clientName');
-    if (searchParams.has('designType')) where.designType = searchParams.get('designType');
+    if (searchParams.has('type')) where.designTypeId = searchParams.get('type');
+    if (searchParams.has('client')) where.clientId = searchParams.get('client');
+    if (searchParams.has('designType')) where.designTypeId = searchParams.get('designType');
     if (searchParams.has('designTypeId')) where.designTypeId = searchParams.get('designTypeId');
     if (searchParams.has('uploaderIdentifier')) {
       const designer = await db.user.findUnique({ where: { identifier: searchParams.get('uploaderIdentifier')! } });
       if (designer) where.uploaderId = designer.id;
       else where.uploaderId = '___NO_MATCH___'; // will return no results
     }
-    if (searchParams.has('clientId')) where.clientId = searchParams.get('clientId');
 
     console.log('--- /api/images QUERY DEBUG ---');
     console.log('Query params:', Object.fromEntries(searchParams.entries()));
@@ -33,6 +34,7 @@ export async function GET(req: NextRequest) {
       include: {
         uploader: { select: { id: true, name: true, role: true, identifier: true } },
         comments: true,
+        designType: { select: { name: true } },
       },
       orderBy: { createdAt: 'desc' },
       skip,

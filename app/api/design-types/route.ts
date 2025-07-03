@@ -4,10 +4,12 @@ import db from '@/lib/prisma';
 export const runtime = 'nodejs';
 
 // GET: List all design types
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const types = await db.designType.findMany({ orderBy: { createdAt: 'desc' } });
-    return NextResponse.json(types);
+    const types = await db.designType.findMany({
+      select: { id: true, name: true }
+    });
+    return NextResponse.json({ types });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch design types', details: String(error) }, { status: 500 });
   }

@@ -5,24 +5,43 @@ import AdminClientsPage from "./clients/page";
 import AdminDesignersPage from "./designers/page";
 import AdminDesignTypesPage from "./design-types/page";
 import { Card } from "@/components/ui/card";
-import { UsersIcon, SparklesIcon, GalleryHorizontalIcon } from "lucide-react";
+import { UsersIcon, SparklesIcon, GalleryHorizontalIcon, ImageIcon } from "lucide-react";
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState({ clients: 0, designers: 0, types: 0 });
+  const [stats, setStats] = useState({ 
+    clients: 0, 
+    designers: 0, 
+    types: 0, 
+    totalImages: 0,
+    loading: true 
+  });
 
   useEffect(() => {
     async function fetchStats() {
-      const [usersRes, typesRes] = await Promise.all([
-        fetch("/api/users"),
-        fetch("/api/design-types"),
-      ]);
-      const users = await usersRes.json();
-      const types = await typesRes.json();
-      setStats({
-        clients: users.filter((u: any) => u.role === "CLIENT").length,
-        designers: users.filter((u: any) => u.role === "DESIGNER").length,
-        types: types.length,
-      });
+      try {
+        const [clientsRes, designersRes, typesRes, imagesRes] = await Promise.all([
+          fetch("/api/users?role=CLIENT"),
+          fetch("/api/users?role=DESIGNER"),
+          fetch("/api/design-types"),
+          fetch("/api/images?page=1&limit=1"), // Just to get total count
+        ]);
+        
+        const clients = await clientsRes.json();
+        const designers = await designersRes.json();
+        const types = await typesRes.json();
+        const images = await imagesRes.json();
+        
+        setStats({
+          clients: clients.length,
+          designers: designers.length,
+          types: types.types?.length || 0,
+          totalImages: images.total || 0,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setStats(prev => ({ ...prev, loading: false }));
+      }
     }
     fetchStats();
   }, []);
@@ -32,14 +51,16 @@ export default function AdminDashboardPage() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center">لوحة تحكم الإدارة</h1>
         {/* Analytics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="p-6 flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <UsersIcon className="size-6 text-white" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">إجمالي العملاء</p>
-              <p className="text-2xl font-bold text-foreground">{stats.clients}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {stats.loading ? '...' : stats.clients}
+              </p>
             </div>
           </Card>
           <Card className="p-6 flex items-center gap-4">
@@ -48,7 +69,9 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">إجمالي المصممين</p>
-              <p className="text-2xl font-bold text-foreground">{stats.designers}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {stats.loading ? '...' : stats.designers}
+              </p>
             </div>
           </Card>
           <Card className="p-6 flex items-center gap-4">
@@ -57,7 +80,20 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">أنواع التصاميم</p>
-              <p className="text-2xl font-bold text-foreground">{stats.types}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {stats.loading ? '...' : stats.types}
+              </p>
+            </div>
+          </Card>
+          <Card className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+              <ImageIcon className="size-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">إجمالي الصور</p>
+              <p className="text-2xl font-bold text-foreground">
+                {stats.loading ? '...' : stats.totalImages}
+              </p>
             </div>
           </Card>
         </div>

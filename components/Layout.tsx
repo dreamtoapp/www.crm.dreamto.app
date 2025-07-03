@@ -90,7 +90,9 @@ export default function Layout({ children }: LayoutProps) {
             <MenuIcon className="size-6" />
           </button>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow bg-white border border-gray-200">
-            <Image src="/dta.svg" alt="شعار النظام" width={40} height={40} className="object-contain" />
+            <Link href="/">
+              <Image src="/dta.svg" alt="شعار النظام" width={40} height={40} className="object-contain cursor-pointer" />
+            </Link>
           </div>
           <div className="text-right hidden sm:block">
             <h1 className="text-2xl font-extrabold leading-tight text-gray-900 tracking-tight">مرحباً بك في <span className="text-primary-800">نظام معرض العملاء</span></h1>

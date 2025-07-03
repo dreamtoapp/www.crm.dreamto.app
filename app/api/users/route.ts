@@ -8,9 +8,13 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const role = (searchParams.get('role') as Role) || Role.CLIENT;
+    // Use correct relation for image count
+    const include = role === Role.CLIENT
+      ? { clientImages: true }
+      : { images: true };
     const users = await db.user.findMany({
       where: { role },
-      include: { images: true },
+      include,
       orderBy: { createdAt: 'desc' },
     });
     // Map to expected format
@@ -19,7 +23,7 @@ export async function GET(req: NextRequest) {
       key: u.identifier,
       name: u.name,
       email: u.email || '',
-      images: u.images.length,
+      images: role === Role.CLIENT ? u.clientImages.length : u.images.length,
       createdAt: u.createdAt.toISOString().slice(0, 10),
     }));
     return NextResponse.json(result);
