@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, MessageCircle, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 interface ImageApprovalActionsProps {
   imageId: string;
@@ -21,6 +23,7 @@ export default function ImageApprovalActions({
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
   const router = useRouter();
 
   const handleAction = async (action: 'approve' | 'reject' | 'revision') => {
@@ -52,6 +55,12 @@ export default function ImageApprovalActions({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleApprove = async () => {
+    setShowApproveDialog(false);
+    await handleAction('approve');
+    toast.success('تمت الموافقة على التصميم بنجاح.');
   };
 
   const getStatusInfo = (status: string) => {
@@ -102,7 +111,7 @@ export default function ImageApprovalActions({
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button
-                onClick={() => handleAction('approve')}
+                onClick={() => setShowApproveDialog(true)}
                 disabled={isSubmitting}
                 className="bg-success hover:bg-success/90 text-success-foreground"
               >
@@ -166,6 +175,26 @@ export default function ImageApprovalActions({
                 </div>
               </div>
             )}
+
+            {/* Approve Confirmation Dialog */}
+            <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+              <DialogContent showCloseButton={false}>
+                <DialogHeader>
+                  <DialogTitle>تأكيد الموافقة</DialogTitle>
+                  <DialogDescription>
+                    بمجرد الموافقة، سيبدأ فريق العمل في تنفيذ هذا التصميم. هل أنت متأكد أنك تريد الموافقة؟
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button onClick={handleApprove} disabled={isSubmitting} className="bg-success hover:bg-success/90 text-success-foreground">
+                    تأكيد
+                  </Button>
+                  <DialogClose asChild>
+                    <Button variant="outline">إلغاء</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </>
         )}
 
