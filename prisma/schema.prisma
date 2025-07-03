@@ -62,6 +62,12 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id], name: "UserComments")
   content   String
   createdAt DateTime @default(now())
+  // Threaded replies
+  parentId  String?  // Self-referencing for replies
+  parent    Comment? @relation("CommentParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children  Comment[] @relation("CommentParent")
+  // Moderation
+  isDeleted Boolean  @default(false)
 }
 
 enum Role {

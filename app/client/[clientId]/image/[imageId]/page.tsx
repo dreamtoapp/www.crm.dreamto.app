@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle, XCircle, MessageCircle, Clock, Info, AlertTrian
 import ImageApprovalActions from '@/components/client/ImageApprovalActions';
 import ImageComments from '@/components/client/ImageComments';
 import ClientImageActionsSection from '@/components/client/ClientImageActionsSection';
+import RevisionRequestHistory from '@/components/client/RevisionRequestHistory';
 
 export default async function ClientImageDetailPage({
   params,
@@ -32,7 +33,7 @@ export default async function ClientImageDetailPage({
       designType: { select: { name: true } },
       comments: {
         include: {
-          author: { select: { name: true, role: true } }
+          author: { select: { id: true, name: true, role: true } }
         },
         orderBy: { createdAt: 'desc' }
       }
@@ -49,7 +50,9 @@ export default async function ClientImageDetailPage({
     id: comment.id,
     content: comment.content,
     createdAt: comment.createdAt.toISOString(),
+    parentId: comment.parentId ?? null,
     author: {
+      id: comment.author.id,
       name: comment.author.name,
       role: comment.author.role
     }
@@ -158,12 +161,13 @@ export default async function ClientImageDetailPage({
                       <div className="text-sm text-red-800">{image.rejectionReason}</div>
                     </div>
                   )}
-                  {image.clientFeedback && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <div className="text-sm font-medium text-blue-900 mb-1">ملاحظات العميل:</div>
-                      <div className="text-sm text-blue-800">{image.clientFeedback}</div>
-                    </div>
-                  )}
+                  <div className="mt-4">
+                    <RevisionRequestHistory
+                      imageId={image.id}
+                      designerId={image.uploaderId}
+                      currentUserId={client.id}
+                    />
+                  </div>
                 </div>
               </CardHeader>
             </Card>
@@ -184,6 +188,8 @@ export default async function ClientImageDetailPage({
               imageId={image.id}
               comments={formattedComments}
               clientId={clientId}
+              currentUserId={client.id}
+              currentUserRole={client.role}
             />
           </div>
         </div>

@@ -59,7 +59,7 @@ export default function RevisionRequestHistory({ imageId, designerId, currentUse
   };
 
   if (loading) return <div className="text-center text-muted-foreground">جاري التحميل...</div>;
-  if (!requests.length) return <div className="text-center text-muted-foreground">لا توجد طلبات تعديل.</div>;
+  if (!requests.length) return null;
 
   return (
     <div className="space-y-4">
