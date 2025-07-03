@@ -2,89 +2,128 @@ import { PrismaClient, Role } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Fake data generators
-const arabicNames = [
-  'أحمد محمد',
-  'فاطمة علي',
-  'عبدالله حسن',
-  'مريم أحمد',
-  'محمد علي',
-  'سارة خالد',
-  'علي محمود',
-  'نور الدين',
-  'خديجة محمد',
-  'يوسف أحمد',
-  'زينب علي',
-  'عمر حسن',
-  'آمنة محمد',
-  'حسن علي',
-  'عائشة أحمد'
+// Agency team members
+const agencyTeam = [
+  'أحمد محمد - مدير إبداعي',
+  'فاطمة علي - مصممة جرافيك',
+  'عبدالله حسن - مصمم ويب',
+  'مريم أحمد - مديرة حسابات',
+  'محمد علي - مصمم هويات بصرية',
+  'سارة خالد - مصممة إعلانات',
+  'علي محمود - مصمم وسائل التواصل',
+  'نور الدين - مصمم مطبوعات',
+  'خديجة محمد - مصممة واجهات',
+  'يوسف أحمد - مصمم رسوم متحركة'
 ];
 
-const englishNames = [
-  'Ahmed Mohamed',
-  'Fatima Ali',
-  'Abdullah Hassan',
-  'Mariam Ahmed',
-  'Mohamed Ali',
-  'Sarah Khalid',
-  'Ali Mahmoud',
-  'Nour El-Din',
-  'Khadija Mohamed',
-  'Youssef Ahmed',
-  'Zeinab Ali',
-  'Omar Hassan',
-  'Amina Mohamed',
-  'Hassan Ali',
-  'Aisha Ahmed'
+const englishTeam = [
+  'Ahmed Mohamed - Creative Director',
+  'Fatima Ali - Graphic Designer',
+  'Abdullah Hassan - Web Designer',
+  'Mariam Ahmed - Account Manager',
+  'Mohamed Ali - Visual Identity Designer',
+  'Sarah Khalid - Ad Designer',
+  'Ali Mahmoud - Social Media Designer',
+  'Nour El-Din - Print Designer',
+  'Khadija Mohamed - UI Designer',
+  'Youssef Ahmed - Motion Designer'
 ];
 
-const designTypes = [
-  { name: 'تصميم داخلي', description: 'تصميمات للديكور الداخلي للمنازل والمكاتب' },
-  { name: 'تصميم خارجي', description: 'تصميمات الواجهات الخارجية للمباني' },
-  { name: 'تصميم أثاث', description: 'تصميم قطع الأثاث المخصصة' },
-  { name: 'تصميم إضاءة', description: 'تصميم أنظمة الإضاءة والإنارة' },
-  { name: 'تصميم حدائق', description: 'تصميم الحدائق والمساحات الخضراء' },
-  { name: 'تصميم مطابخ', description: 'تصميم المطابخ الحديثة والكلاسيكية' },
-  { name: 'تصميم حمامات', description: 'تصميم الحمامات والمرافق الصحية' },
-  { name: 'تصميم غرف نوم', description: 'تصميم غرف النوم والغرف الشخصية' }
+// Agency clients
+const agencyClients = [
+  'شركة التقنية المتقدمة',
+  'مطعم الشرق الأوسط',
+  'صالون التجميل الفاخر',
+  'شركة العقارات العالمية',
+  'مستشفى الأمل التخصصي',
+  'مدرسة المستقبل الدولية',
+  'شركة النقل السريع',
+  'مخبز الحلويات التقليدي',
+  'شركة الأثاث الحديث',
+  'صالون السيارات الفاخر',
+  'شركة التأمين الموثوقة',
+  'مطعم المأكولات البحرية',
+  'شركة الأزياء العصرية',
+  'صالون التجميل النسائي',
+  'شركة البناء المتطورة'
 ];
 
-const englishDesignTypes = [
-  { name: 'Interior Design', description: 'Interior decoration designs for homes and offices' },
-  { name: 'Exterior Design', description: 'Exterior facade designs for buildings' },
-  { name: 'Furniture Design', description: 'Custom furniture piece designs' },
-  { name: 'Lighting Design', description: 'Lighting system and illumination designs' },
-  { name: 'Garden Design', description: 'Garden and green space designs' },
-  { name: 'Kitchen Design', description: 'Modern and classic kitchen designs' },
-  { name: 'Bathroom Design', description: 'Bathroom and sanitary facility designs' },
-  { name: 'Bedroom Design', description: 'Bedroom and personal room designs' }
+const englishClients = [
+  'Advanced Technology Co.',
+  'Middle East Restaurant',
+  'Luxury Beauty Salon',
+  'Global Real Estate Co.',
+  'Hope Specialized Hospital',
+  'Future International School',
+  'Fast Transport Company',
+  'Traditional Sweets Bakery',
+  'Modern Furniture Co.',
+  'Luxury Car Salon',
+  'Trusted Insurance Co.',
+  'Seafood Restaurant',
+  'Modern Fashion Co.',
+  'Women\'s Beauty Salon',
+  'Advanced Construction Co.'
 ];
 
-const sampleComments = [
-  'تصميم رائع ومبتكر!',
-  'أحب الألوان المستخدمة في هذا التصميم',
-  'التفاصيل دقيقة ومميزة',
-  'تصميم عصري وأنيق',
-  'ممتاز! هذا بالضبط ما كنت أبحث عنه',
-  'أقترح تعديل بسيط في الألوان',
-  'التصميم عملي ومريح',
+// Agency project types
+const projectTypes = [
+  { name: 'هوية بصرية', description: 'تصميم الهويات البصرية والشعارات للشركات' },
+  { name: 'إعلانات مطبوعة', description: 'تصميم الإعلانات والملصقات المطبوعة' },
+  { name: 'وسائل التواصل الاجتماعي', description: 'تصميم محتوى وسائل التواصل الاجتماعي' },
+  { name: 'تصميم مواقع الويب', description: 'تصميم واجهات المواقع الإلكترونية' },
+  { name: 'تصميم التطبيقات', description: 'تصميم واجهات تطبيقات الهواتف' },
+  { name: 'رسوم متحركة', description: 'تصميم الرسوم المتحركة والفيديوهات' },
+  { name: 'تصميم المطبوعات', description: 'تصميم الكتب والكتيبات والمنشورات' },
+  { name: 'إعلانات رقمية', description: 'تصميم الإعلانات الرقمية والبانرات' }
+];
+
+const englishProjectTypes = [
+  { name: 'Visual Identity', description: 'Corporate visual identity and logo design' },
+  { name: 'Print Advertising', description: 'Print ads and poster design' },
+  { name: 'Social Media', description: 'Social media content design' },
+  { name: 'Web Design', description: 'Website interface design' },
+  { name: 'App Design', description: 'Mobile app interface design' },
+  { name: 'Motion Graphics', description: 'Animation and video design' },
+  { name: 'Print Design', description: 'Books, brochures, and publications design' },
+  { name: 'Digital Advertising', description: 'Digital ads and banner design' }
+];
+
+// Agency-specific comments
+const agencyComments = [
+  'التصميم رائع ويعبر عن هوية الشركة بشكل مثالي!',
+  'الألوان والخطوط متناسقة ومهنية',
+  'هذا التصميم سيجذب انتباه العملاء المستهدفين',
+  'ممتاز! التصميم عصري ومبتكر',
+  'أقترح تعديل بسيط في حجم العناصر',
+  'التصميم عملي وسهل التطبيق',
+  'هذا بالضبط ما كان يبحث عنه العميل',
   'أداء ممتاز في هذا المشروع',
-  'تصميم كلاسيكي جميل',
-  'أفكار إبداعية ومبتكرة'
+  'التصميم يلبي جميع متطلبات العلامة التجارية',
+  'أفكار إبداعية ومبتكرة في التصميم',
+  'التصميم مناسب للجمهور المستهدف',
+  'ممتاز في التواصل مع رسالة العلامة التجارية',
+  'التصميم احترافي ومقنع',
+  'هذا سيعزز من صورة العلامة التجارية',
+  'التصميم متوافق مع معايير الصناعة'
 ];
 
 const englishComments = [
-  'Amazing and innovative design!',
-  'I love the colors used in this design',
-  'The details are precise and distinctive',
-  'Modern and elegant design',
-  'Excellent! This is exactly what I was looking for',
-  'I suggest a slight modification in colors',
-  'Practical and comfortable design',
+  'The design is excellent and perfectly represents the company identity!',
+  'Colors and typography are harmonious and professional',
+  'This design will attract the attention of target customers',
+  'Excellent! The design is modern and innovative',
+  'I suggest a slight modification in element sizes',
+  'The design is practical and easy to implement',
+  'This is exactly what the client was looking for',
   'Outstanding performance on this project',
-  'Beautiful classic design',
-  'Creative and innovative ideas'
+  'The design meets all brand requirements',
+  'Creative and innovative ideas in the design',
+  'The design is suitable for the target audience',
+  'Excellent communication with the brand message',
+  'The design is professional and convincing',
+  'This will enhance the brand image',
+  'The design complies with industry standards'
 ];
 
 // Generate working placeholder image URLs
@@ -96,11 +135,11 @@ function generateFakeImageUrl(index: number) {
 }
 
 function generateFakePublicId(index: number) {
-  return `sample_images/image_${index}_${Date.now()}`;
+  return `agency_projects/project_${index}_${Date.now()}`;
 }
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
+  console.log('🌱 Starting advertising agency database seeding...');
 
   // Clear existing data
   console.log('🧹 Clearing existing data...');
@@ -109,179 +148,194 @@ async function main() {
   await prisma.designType.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create Design Types
-  console.log('🎨 Creating design types...');
-  const createdDesignTypes = [];
-  for (let i = 0; i < designTypes.length; i++) {
-    const designType = await prisma.designType.create({
+  // Create Project Types (Design Types)
+  console.log('🎨 Creating project types...');
+  const createdProjectTypes = [];
+  for (let i = 0; i < projectTypes.length; i++) {
+    const projectType = await prisma.designType.create({
       data: {
-        name: designTypes[i].name,
-        description: designTypes[i].description,
+        name: projectTypes[i].name,
+        description: projectTypes[i].description,
       },
     });
-    createdDesignTypes.push(designType);
+    createdProjectTypes.push(projectType);
   }
 
   // Create Users (Admin, Designers, Clients)
-  console.log('👥 Creating users...');
+  console.log('👥 Creating agency team and clients...');
   
-  // Create Admin
+  // Create Admin (Agency Director)
   const admin = await prisma.user.create({
     data: {
-      name: 'مدير النظام',
+      name: 'مدير الوكالة الإعلانية',
       role: Role.ADMIN,
       identifier: 'A789',
-      email: 'admin@dreamto.app',
+      email: 'director@advertising-agency.com',
     },
   });
 
-  // Create Designers
+  // Create Designers (Agency Team)
   const designers = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     const designer = await prisma.user.create({
       data: {
-        name: arabicNames[i],
+        name: agencyTeam[i],
         role: Role.DESIGNER,
         identifier: `D${100 + i}`,
-        email: `designer${i + 1}@dreamto.app`,
+        email: `designer${i + 1}@advertising-agency.com`,
       },
     });
     designers.push(designer);
   }
 
-  // Create Clients
+  // Create Clients (Agency Clients)
   const clients = [];
-  for (let i = 5; i < 15; i++) {
+  for (let i = 0; i < 15; i++) {
     const client = await prisma.user.create({
       data: {
-        name: arabicNames[i],
+        name: agencyClients[i],
         role: Role.CLIENT,
-        identifier: `C${200 + (i - 5)}`,
-        email: `client${i - 4}@dreamto.app`,
+        identifier: `C${200 + i}`,
+        email: `client${i + 1}@business.com`,
       },
     });
     clients.push(client);
   }
 
-  // Create Images with realistic data
-  console.log('🖼️ Creating images...');
-  const images = [];
-  for (let i = 0; i < 50; i++) {
+  // Create Projects (Images) with realistic agency data
+  console.log('🖼️ Creating agency projects...');
+  const projects = [];
+  for (let i = 0; i < 80; i++) {
     const designer = designers[i % designers.length];
     const client = clients[i % clients.length];
-    const designType = createdDesignTypes[i % createdDesignTypes.length];
+    const projectType = createdProjectTypes[i % createdProjectTypes.length];
     
-    const image = await prisma.image.create({
+    const project = await prisma.image.create({
       data: {
         url: generateFakeImageUrl(i),
         publicId: generateFakePublicId(i),
         uploaderId: designer.id,
         clientId: client.id,
         clientName: client.name,
-        designTypeId: designType.id,
-        format: 'jpg', // Picsum Photos returns JPG format
+        designTypeId: projectType.id,
+        format: 'jpg',
         bytes: 500000 + (i * 10000),
         width: 800 + (i % 400),
         height: 600 + (i % 300),
+        status: ['PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUESTED'][i % 4] as any,
       },
     });
-    images.push(image);
+    projects.push(project);
   }
 
-  // Create Comments
-  console.log('💬 Creating comments...');
-  for (let i = 0; i < 100; i++) {
-    const image = images[i % images.length];
+  // Create Comments (Client Feedback)
+  console.log('💬 Creating client feedback...');
+  for (let i = 0; i < 150; i++) {
+    const project = projects[i % projects.length];
     const commenter = [admin, ...designers, ...clients][i % (1 + designers.length + clients.length)];
-    const commentText = sampleComments[i % sampleComments.length];
+    const commentText = agencyComments[i % agencyComments.length];
     
     await prisma.comment.create({
       data: {
-        imageId: image.id,
+        imageId: project.id,
         authorId: commenter.id,
         content: commentText,
       },
     });
   }
 
-  // Create some additional test scenarios
+  // Create additional test scenarios
   console.log('🔧 Creating test scenarios...');
   
-  // Create a designer with many images
-  const prolificDesigner = await prisma.user.create({
+  // Create a senior designer with many projects
+  const seniorDesigner = await prisma.user.create({
     data: {
-      name: 'مصمم نشط',
+      name: 'مصمم أول - مدير إبداعي',
       role: Role.DESIGNER,
       identifier: 'D999',
-      email: 'prolific@dreamto.app',
+      email: 'senior@advertising-agency.com',
     },
   });
 
-  // Create images for prolific designer
-  for (let i = 0; i < 10; i++) {
+  // Create projects for senior designer
+  for (let i = 0; i < 15; i++) {
     const client = clients[i % clients.length];
-    const designType = createdDesignTypes[i % createdDesignTypes.length];
+    const projectType = createdProjectTypes[i % createdProjectTypes.length];
     
     await prisma.image.create({
       data: {
         url: generateFakeImageUrl(100 + i),
         publicId: generateFakePublicId(100 + i),
-        uploaderId: prolificDesigner.id,
+        uploaderId: seniorDesigner.id,
         clientId: client.id,
         clientName: client.name,
-        designTypeId: designType.id,
+        designTypeId: projectType.id,
         format: 'jpg',
         bytes: 800000,
         width: 1200,
         height: 800,
+        status: 'APPROVED',
       },
     });
   }
 
-  // Create a client with many images
-  const activeClient = await prisma.user.create({
+  // Create a major client with many projects
+  const majorClient = await prisma.user.create({
     data: {
-      name: 'عميل نشط',
+      name: 'شركة كبرى - عميل مميز',
       role: Role.CLIENT,
       identifier: 'C999',
-      email: 'activeclient@dreamto.app',
+      email: 'major@corporate.com',
     },
   });
 
-  // Create images for active client
-  for (let i = 0; i < 8; i++) {
+  // Create projects for major client
+  for (let i = 0; i < 12; i++) {
     const designer = designers[i % designers.length];
-    const designType = createdDesignTypes[i % createdDesignTypes.length];
+    const projectType = createdProjectTypes[i % createdProjectTypes.length];
     
     await prisma.image.create({
       data: {
         url: generateFakeImageUrl(200 + i),
         publicId: generateFakePublicId(200 + i),
         uploaderId: designer.id,
-        clientId: activeClient.id,
-        clientName: activeClient.name,
-        designTypeId: designType.id,
-        format: 'jpg', // Picsum Photos returns JPG format
+        clientId: majorClient.id,
+        clientName: majorClient.name,
+        designTypeId: projectType.id,
+        format: 'jpg',
         bytes: 600000,
         width: 1000,
         height: 700,
+        status: ['PENDING', 'APPROVED'][i % 2] as any,
       },
     });
   }
 
-  console.log('✅ Seeding completed successfully!');
-  console.log('\n📊 Database Summary:');
-  console.log(`- Admin users: 1`);
-  console.log(`- Designers: ${designers.length + 1} (including prolific designer)`);
-  console.log(`- Clients: ${clients.length + 1} (including active client)`);
-  console.log(`- Design Types: ${createdDesignTypes.length}`);
-  console.log(`- Images: ${images.length + 18} (including test scenarios)`);
-  console.log(`- Comments: 100`);
+  console.log('✅ Advertising agency seeding completed successfully!');
+  console.log('\n📊 Agency Database Summary:');
+  console.log(`- Agency Director: 1`);
+  console.log(`- Design Team: ${designers.length + 1} (including senior designer)`);
+  console.log(`- Clients: ${clients.length + 1} (including major client)`);
+  console.log(`- Project Types: ${createdProjectTypes.length}`);
+  console.log(`- Projects: ${projects.length + 27} (including test scenarios)`);
+  console.log(`- Client Feedback: 150`);
+  
+  console.log('\n🎨 Project Types Available:');
+  projectTypes.forEach((type, index) => {
+    console.log(`  ${index + 1}. ${type.name} - ${type.description}`);
+  });
   
   console.log('\n🔑 Test Credentials:');
-  console.log('Admin: A789');
-  console.log('Designers: D100, D101, D102, D103, D104, D999 (prolific)');
-  console.log('Clients: C200, C201, C202, C203, C204, C205, C206, C207, C208, C209, C999 (active)');
+  console.log('Agency Director: A789');
+  console.log('Design Team: D100-D109, D999 (senior)');
+  console.log('Clients: C200-C214, C999 (major)');
+  
+  console.log('\n💼 Agency Workflow:');
+  console.log('1. Clients submit project requests');
+  console.log('2. Design team creates concepts');
+  console.log('3. Clients review and provide feedback');
+  console.log('4. Projects are approved, rejected, or revised');
+  console.log('5. Final deliverables are prepared');
 }
 
 main()
@@ -289,7 +343,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error('❌ Seeding failed:', e);
+    console.error('❌ Agency seeding failed:', e);
     await prisma.$disconnect();
     process.exit(1);
   }); 
