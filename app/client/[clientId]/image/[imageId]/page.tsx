@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle, XCircle, MessageCircle, Clock, Info, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, MessageCircle, Clock, Info, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import ImageApprovalActions from '@/components/client/ImageApprovalActions';
 import ImageComments from '@/components/client/ImageComments';
-import { useEffect, useState } from 'react';
+import RevisionRulesAgreement from '@/components/client/RevisionRulesAgreement';
 
 export default async function ClientImageDetailPage({
   params,
@@ -93,6 +93,25 @@ export default async function ClientImageDetailPage({
           </Link>
         </div>
 
+        {/* Revision Rules Agreement Section (Client Component) */}
+        <RevisionRulesAgreement clientId={clientId} />
+        {/* Revision Counter Message */}
+        {maxRevisionRequests > 0 && (
+          <div className="mb-2 flex items-center justify-center">
+            {image.revisionRequestCount >= maxRevisionRequests ? (
+              <Badge className="bg-destructive/10 text-destructive flex items-center gap-2 px-4 py-2 text-base">
+                <AlertTriangle className="w-4 h-4" />
+                {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
+              </Badge>
+            ) : (
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 flex items-center gap-2 px-4 py-2 text-base">
+                <Info className="w-4 h-4" />
+                {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
+              </Badge>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Section */}
           <div>
@@ -151,23 +170,6 @@ export default async function ClientImageDetailPage({
 
           {/* Actions & Comments Section */}
           <div className="space-y-6">
-            {/* Revision Counter Message */}
-            {maxRevisionRequests > 0 && (
-              <div className="mb-2 flex items-center justify-center">
-                {image.revisionRequestCount >= maxRevisionRequests ? (
-                  <Badge className="bg-destructive/10 text-destructive flex items-center gap-2 px-4 py-2 text-base">
-                    <AlertTriangle className="w-4 h-4" />
-                    {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
-                  </Badge>
-                ) : (
-                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 flex items-center gap-2 px-4 py-2 text-base">
-                    <Info className="w-4 h-4" />
-                    {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
-                  </Badge>
-                )}
-              </div>
-            )}
-            {/* Approval Actions */}
             <ImageApprovalActions 
               imageId={image.id}
               currentStatus={image.status || 'PENDING'}

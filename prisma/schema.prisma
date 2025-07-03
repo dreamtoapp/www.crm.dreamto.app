@@ -23,6 +23,7 @@ model User {
   comments   Comment[] @relation("UserComments")
   createdAt  DateTime @default(now())
   clientImages Image[] @relation("ClientImages")
+  revisionRulesConfirmed Boolean @default(false)
 }
 
 model Image {

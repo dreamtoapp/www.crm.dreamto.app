@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, MessageCircle, Send } from 'lucide-react';
+import { CheckCircle, XCircle, MessageCircle, Send, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { toast } from 'sonner';
@@ -15,6 +15,7 @@ interface ImageApprovalActionsProps {
   clientId: string;
   maxRevisionRequests: number;
   revisionRequestCount: number;
+  rulesAgreed: boolean;
 }
 
 export default function ImageApprovalActions({ 
@@ -22,7 +23,8 @@ export default function ImageApprovalActions({
   currentStatus, 
   clientId,
   maxRevisionRequests,
-  revisionRequestCount
+  revisionRequestCount,
+  rulesAgreed
 }: ImageApprovalActionsProps) {
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +32,57 @@ export default function ImageApprovalActions({
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [rulesConfirmed, setRulesConfirmed] = useState<boolean | null>(null);
+  const [rules, setRules] = useState<string[]>([]);
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+  const [loadingRules, setLoadingRules] = useState(false);
   const router = useRouter();
+
+  // Fetch confirmation status on mount
+  useEffect(() => {
+    async function fetchConfirmed() {
+      try {
+        const res = await fetch(`/api/users/${clientId}/revision-rules-confirmed`);
+        const data = await res.json();
+        setRulesConfirmed(data.revisionRulesConfirmed);
+      } catch {
+        setRulesConfirmed(false);
+      }
+    }
+    fetchConfirmed();
+  }, [clientId]);
+
+  // Always fetch rules on mount
+  useEffect(() => {
+    setLoadingRules(true);
+    fetch('/api/revision-rules')
+      .then(res => res.json())
+      .then(data => setRules(data.map((r: any) => r.text)))
+      .finally(() => setLoadingRules(false));
+  }, []);
+
+  // Handle checkbox toggle and update backend
+  const handleRulesCheckbox = async (checked: boolean) => {
+    setCheckboxChecked(checked);
+    setIsSubmitting(true);
+    try {
+      await fetch(`/api/users/${clientId}/revision-rules-confirmed`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: checked }),
+      });
+      setRulesConfirmed(checked);
+      if (checked) {
+        toast.success('تم تأكيد الموافقة على القواعد. يمكنك الآن إرسال طلب التعديل.');
+      } else {
+        toast.info('تم إلغاء الموافقة على القواعد.');
+      }
+    } catch {
+      toast.error('حدث خطأ أثناء تحديث الموافقة على القواعد.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleAction = async (action: 'approve' | 'reject' | 'revision', reason?: string) => {
     if (action === 'revision' && !feedback.trim()) {
@@ -108,6 +160,7 @@ export default function ImageApprovalActions({
   const statusInfo = getStatusInfo(currentStatus);
   const isPending = currentStatus === 'PENDING';
   const reachedLimit = revisionRequestCount >= maxRevisionRequests;
+  const canSendRevision = !isSubmitting && feedback.trim() && (!reachedLimit) && rulesAgreed;
 
   return (
     <Card>
@@ -175,7 +228,7 @@ export default function ImageApprovalActions({
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleAction('revision')}
-                    disabled={isSubmitting || !feedback.trim()}
+                    disabled={!canSendRevision}
                     className="bg-primary hover:bg-primary/90"
                   >
                     <Send className="w-4 h-4 mr-2" />
