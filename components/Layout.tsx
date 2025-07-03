@@ -24,6 +24,7 @@ import Link from "next/link";
 import { toast } from 'sonner';
 import Image from "next/image";
 import { ModeToggle } from "./ui/mode-toggle";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -35,6 +36,13 @@ export default function Layout({ children }: LayoutProps) {
   const [userId, setUserId] = React.useState("");
   const [user, setUser] = React.useState<{ role: string; name: string; identifier: string } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [loginOpen, setLoginOpen] = React.useState(false);
+
+  // Restore user from localStorage on mount
+  React.useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +53,9 @@ export default function Layout({ children }: LayoutProps) {
       const user = await res.json();
       if (!user || !user.role) throw new Error("تعذر تحديد نوع المستخدم.");
       setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
       setUserId("");
+      setLoginOpen(false);
       if (user.role === "CLIENT") {
         router.push(`/client/${user.identifier}`);
       } else if (user.role === "DESIGNER") {
@@ -118,29 +128,45 @@ export default function Layout({ children }: LayoutProps) {
               <span className="text-sm font-bold text-primary">{user.name || user.identifier}</span>
               <span className="text-xs text-muted-foreground">{user.role}</span>
               {/* Logout */}
-              <button onClick={() => { setUser(null); router.push("/"); }} className="text-xs text-destructive hover:underline ml-2" aria-label="تسجيل الخروج">خروج</button>
+              <button onClick={() => { setUser(null); localStorage.removeItem("user"); router.push("/"); }} className="text-xs text-destructive hover:underline ml-2" aria-label="تسجيل الخروج">خروج</button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full max-w-xs md:max-w-sm justify-end">
+            <>
               <button
-                type="submit"
-                className="flex items-center justify-center gap-1 bg-primary text-primary-foreground px-4 py-2 rounded-md text-base font-bold hover:bg-primary/90 transition focus:outline-none focus:ring-2 focus:ring-ring"
-                aria-label="دخول"
+                onClick={() => setLoginOpen(true)}
+                className="flex items-center gap-1 bg-primary text-primary-foreground px-4 py-2 rounded-md text-base font-bold hover:bg-primary/90 transition focus:outline-none focus:ring-2 focus:ring-ring"
+                aria-label="تسجيل الدخول"
               >
-                <LogInIcon className="size-5" />
+                <LogInIcon className="size-5" /> تسجيل الدخول
               </button>
-              <input
-                id="user-id-input"
-                type="text"
-                value={userId}
-                onChange={e => setUserId(e.target.value)}
-                placeholder="ادخل رقمك السري او المعرف الخاص بك"
-                className="border border-input rounded-md px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-ring w-full bg-background text-foreground placeholder-muted-foreground"
-                dir="ltr"
-                aria-label="معرف المستخدم"
-                autoComplete="off"
-              />
-            </form>
+              <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+                <DialogContent className="max-w-xs w-full p-6">
+                  <DialogHeader>
+                    <DialogTitle>تسجيل الدخول</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
+                    <input
+                      id="user-id-input"
+                      type="text"
+                      value={userId}
+                      onChange={e => setUserId(e.target.value)}
+                      placeholder="ادخل رقمك السري او المعرف الخاص بك"
+                      className="border border-input rounded-md px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-ring w-full bg-background text-foreground placeholder-muted-foreground"
+                      dir="ltr"
+                      aria-label="معرف المستخدم"
+                      autoComplete="off"
+                    />
+                    <button
+                      type="submit"
+                      className="flex items-center justify-center gap-1 bg-primary text-primary-foreground px-4 py-2 rounded-md text-base font-bold hover:bg-primary/90 transition focus:outline-none focus:ring-2 focus:ring-ring"
+                      aria-label="دخول"
+                    >
+                      <LogInIcon className="size-5" /> دخول
+                    </button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </div>
         {/* Mobile Menu */}
@@ -173,7 +199,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="flex flex-col gap-1 mt-4">
                 <span className="text-sm font-bold text-primary">{user.name || user.identifier}</span>
                 <span className="text-xs text-muted-foreground">{user.role}</span>
-                <button onClick={() => { setUser(null); router.push("/"); }} className="text-xs text-destructive hover:underline w-fit" aria-label="تسجيل الخروج">خروج</button>
+                <button onClick={() => { setUser(null); localStorage.removeItem("user"); router.push("/"); }} className="text-xs text-destructive hover:underline w-fit" aria-label="تسجيل الخروج">خروج</button>
               </div>
             )}
           </div>
