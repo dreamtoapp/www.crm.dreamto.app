@@ -94,7 +94,7 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
           </div>
           <div className="text-right hidden sm:block">
-            <h1 className="text-2xl font-extrabold leading-tight text-foreground tracking-tight">مرحباً بك في <span className="text-primary">نظام معرض العملاء</span></h1>
+            <h1 className="text-2xl font-extrabold leading-tight text-foreground tracking-tight">مرحباً بك في <span className="text-primary">فنشور</span></h1>
             <p className="text-sm text-muted-foreground font-medium mt-1">منصة احترافية لإدارة التصاميم والمراجعة بسهولة وود</p>
           </div>
         </div>

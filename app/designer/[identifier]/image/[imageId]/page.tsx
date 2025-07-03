@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon, MessageCircleIcon, InfoIcon, FileIcon, RulerIcon, UserIcon, ImageIcon, ArrowRightIcon } from 'lucide-react';
 
 interface Props {
-  params: { identifier: string; imageId: string };
+  params: Promise<{ identifier: string; imageId: string }>;
 }
 
 export default async function ImageFullPage({ params }: Props) {
-  const { imageId, identifier } = params;
+  const { imageId, identifier } = await params;
   const image = await db.image.findUnique({
     where: { id: imageId },
     include: {
