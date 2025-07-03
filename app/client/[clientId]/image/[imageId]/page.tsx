@@ -41,6 +41,9 @@ export default async function ClientImageDetailPage({
 
   if (!image) return <div className="p-8 text-center">الصورة غير موجودة</div>;
 
+  // Fetch revision request count for this image
+  const revisionRequestCount = await db.revisionRequest.count({ where: { imageId: image.id } });
+
   // Convert comments to match the expected interface
   const formattedComments = image.comments.map(comment => ({
     id: comment.id,
@@ -96,15 +99,15 @@ export default async function ClientImageDetailPage({
         {/* Revision Counter Message */}
         {maxRevisionRequests > 0 && (
           <div className="mb-2 flex items-center justify-center">
-            {image.revisionRequestCount >= maxRevisionRequests ? (
+            {revisionRequestCount >= maxRevisionRequests ? (
               <Badge className="bg-destructive/10 text-destructive flex items-center gap-2 px-4 py-2 text-base">
                 <AlertTriangle className="w-4 h-4" />
-                {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
+                {`لقد استخدمت ${revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
               </Badge>
             ) : (
               <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 flex items-center gap-2 px-4 py-2 text-base">
                 <Info className="w-4 h-4" />
-                {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
+                {`لقد استخدمت ${revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
               </Badge>
             )}
           </div>
@@ -173,7 +176,7 @@ export default async function ClientImageDetailPage({
               imageId={image.id}
               currentStatus={image.status || 'PENDING'}
               maxRevisionRequests={maxRevisionRequests}
-              revisionRequestCount={image.revisionRequestCount}
+              revisionRequestCount={revisionRequestCount}
             />
 
             {/* Comments Section */}

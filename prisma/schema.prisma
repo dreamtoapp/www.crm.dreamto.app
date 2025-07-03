@@ -51,6 +51,7 @@ model Image {
   width         Int?
   height        Int?
   revisionRequestCount Int @default(0)
+  revisionRequests RevisionRequest[]
 }
 
 model Comment {
@@ -102,4 +103,16 @@ model Setting {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
   key   String @unique
   value String
+}
+
+model RevisionRequest {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  imageId   String
+  image     Image    @relation(fields: [imageId], references: [id])
+  clientId  String
+  designerId String
+  feedback  String
+  status    String   @default("PENDING")
+  doneAt    DateTime?
+  createdAt DateTime @default(now())
 }

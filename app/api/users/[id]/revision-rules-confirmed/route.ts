@@ -12,9 +12,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 // PUT /api/users/[id]/revision-rules-confirmed
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const body = await req.json();
+  const value = !!body.value;
   const user = await db.user.update({
     where: { identifier: id },
-    data: { revisionRulesConfirmed: true },
+    data: { revisionRulesConfirmed: value },
   });
   return NextResponse.json({ revisionRulesConfirmed: user.revisionRulesConfirmed });
 } 

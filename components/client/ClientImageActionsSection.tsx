@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RevisionRulesAgreement from './RevisionRulesAgreement';
 import ImageApprovalActions from './ImageApprovalActions';
 
@@ -19,7 +19,28 @@ export default function ClientImageActionsSection({
   maxRevisionRequests,
   revisionRequestCount,
 }: ClientImageActionsSectionProps) {
-  const [rulesAgreed, setRulesAgreed] = useState(false);
+  const [rulesAgreed, setRulesAgreed] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAgreement() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/users/${clientId}/revision-rules-confirmed`);
+        const data = await res.json();
+        setRulesAgreed(!!data.revisionRulesConfirmed);
+      } catch {
+        setRulesAgreed(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgreement();
+  }, [clientId]);
+
+  if (loading || rulesAgreed === null) {
+    return <div className="py-8 text-center text-muted-foreground">جاري تحميل حالة الموافقة على القواعد...</div>;
+  }
 
   return (
     <>

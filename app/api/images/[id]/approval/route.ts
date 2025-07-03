@@ -64,6 +64,16 @@ export async function POST(
         updateData.status = 'REVISION_REQUESTED';
         updateData.clientFeedback = feedback;
         updateData.rejectionReason = null;
+        // Create a new RevisionRequest record
+        await db.revisionRequest.create({
+          data: {
+            imageId: imageId,
+            clientId: image.clientId,
+            designerId: image.uploaderId,
+            feedback,
+            status: 'PENDING',
+          },
+        });
         break;
     }
 
@@ -73,9 +83,13 @@ export async function POST(
       data: updateData
     });
 
+    // Get the new count of revision requests
+    const revisionRequestCount = await db.revisionRequest.count({ where: { imageId } });
+
     return NextResponse.json({
       success: true,
-      image: updatedImage
+      image: updatedImage,
+      revisionRequestCount
     });
 
   } catch (error) {

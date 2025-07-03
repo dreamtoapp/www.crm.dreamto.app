@@ -38,7 +38,6 @@ export default function RevisionRulesAgreement({ clientId, onAgreementChange }: 
   }, [clientId]);
 
   const handleRulesCheckbox = async (checked: boolean) => {
-    setCheckboxChecked(checked);
     setIsSubmitting(true);
     try {
       await fetch(`/api/users/${clientId}/revision-rules-confirmed`, {
@@ -46,8 +45,12 @@ export default function RevisionRulesAgreement({ clientId, onAgreementChange }: 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: checked }),
       });
-      if (onAgreementChange) onAgreementChange(checked);
-      if (checked) {
+      const confirmRes = await fetch(`/api/users/${clientId}/revision-rules-confirmed`);
+      const confirmData = await confirmRes.json();
+      const actualAgreed = !!confirmData.revisionRulesConfirmed;
+      setCheckboxChecked(actualAgreed);
+      if (onAgreementChange) onAgreementChange(actualAgreed);
+      if (actualAgreed) {
         toast.success('تم تأكيد الموافقة على القواعد. يمكنك الآن إرسال طلب التعديل.');
       } else {
         toast.info('تم إلغاء الموافقة على القواعد.');

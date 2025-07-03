@@ -200,9 +200,19 @@ export default function ImageApprovalActions({
               
               <Button
                 onClick={() => setShowFeedbackForm(true)}
-                disabled={!canOpenFeedbackForm}
+                disabled={
+                  !rulesAgreed ||
+                  reachedLimit
+                }
                 variant="outline"
                 className="flex items-center gap-2"
+                title={
+                  !rulesAgreed
+                    ? 'يجب الموافقة على القواعد أولاً'
+                    : reachedLimit
+                    ? 'لقد وصلت للحد الأقصى لطلبات التعديل'
+                    : ''
+                }
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 طلب تعديل
