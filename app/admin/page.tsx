@@ -6,6 +6,8 @@ import AdminDesignersPage from "./designers/page";
 import AdminDesignTypesPage from "./design-types/page";
 import { Card } from "@/components/ui/card";
 import { UsersIcon, SparklesIcon, GalleryHorizontalIcon, ImageIcon } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({ 
@@ -50,6 +52,13 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center">لوحة تحكم الإدارة</h1>
+        <div className="flex justify-center mb-8">
+          <Link href="/admin/revision-rules">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg shadow">
+              إدارة قواعد طلب التعديل
+            </Button>
+          </Link>
+        </div>
         {/* Analytics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="p-6 flex items-center gap-4">
