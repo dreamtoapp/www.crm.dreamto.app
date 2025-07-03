@@ -4,6 +4,9 @@ import db from "@/lib/prisma";
 import Image from "next/image";
 import { GalleryHorizontalIcon, UsersIcon, ShieldCheckIcon, ClockIcon, SmileIcon } from "lucide-react";
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import ClientAlertBar from "@/components/ClientAlertBar";
+import { Suspense } from "react";
 
 function HeroSection() {
   return (
@@ -109,9 +112,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   });
   const typeOptions = await db.designType.findMany({ select: { id: true, name: true } });
   const clientOptions = await db.user.findMany({ where: { role: "CLIENT" }, select: { id: true, name: true } });
-  console.log({typeOptions, clientOptions});
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex flex-col items-center animate-fade-in relative">
+      {/* <ClientAlertBar /> */}
       {/* Simulate Landing/Clear Data Button */}
       <Link
         href="/clear"
@@ -122,7 +125,14 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </Link>
       <HeroSection />
       <section id="gallery" className="w-full max-w-6xl mx-auto py-10">
-        <FilterBar typeOptions={typeOptions} clientOptions={clientOptions} />
+        {images.length > 0 && (
+          <Suspense fallback={<div className="flex flex-wrap gap-4 mb-6">
+            <div className="w-40 h-10 bg-muted animate-pulse rounded" />
+            <div className="w-40 h-10 bg-muted animate-pulse rounded" />
+          </div>}>
+            <FilterBar typeOptions={typeOptions} clientOptions={clientOptions} />
+          </Suspense>
+        )}
         <GalleryInfiniteScroll
           initialImages={images}
           typeId={typeId}

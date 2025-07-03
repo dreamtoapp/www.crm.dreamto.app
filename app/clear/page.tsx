@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   GalleryHorizontalIcon, 
   MessageCircleIcon, 
@@ -14,8 +14,14 @@ import {
   StarIcon,
   TrendingUpIcon,
   ClockIcon,
-  ZapIcon
+  ZapIcon,
+  CodeIcon,
+  CameraIcon,
+  VideoIcon,
+  BookOpenIcon,
+  CalendarIcon
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 function FeatureCard({ icon, title, desc, delay = 0 }: { 
   icon: React.ReactNode; 
@@ -114,23 +120,155 @@ function StatsCard({ icon, number, label, delay = 0 }: {
   );
 }
 
+// Enhanced Circular Progress Bar Component
+function CircularProgressBar({ progress }: { progress: number }) {
+  const circumference = 2 * Math.PI * 28; // r = 28
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="relative w-16 h-16 flex items-center justify-center">
+      <svg className="w-16 h-16 drop-shadow-lg" viewBox="0 0 64 64">
+        {/* Background circle */}
+        <circle
+          className="opacity-20"
+          cx="32"
+          cy="32"
+          r="28"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="8"
+        />
+        {/* Progress circle */}
+        <circle
+          className="opacity-90 transition-all duration-300 ease-out"
+          cx="32"
+          cy="32"
+          r="28"
+          fill="none"
+          stroke="#06b6d4" // Tailwind cyan-500
+          strokeWidth="8"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          style={{ filter: 'drop-shadow(0 0 6px #06b6d4)' }}
+          transform="rotate(-90 32 32)"
+        />
+      </svg>
+      {/* Percentage text */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-lg font-extrabold text-accent-foreground drop-shadow-sm">
+          {Math.round(progress)}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
+const categories = [
+  {
+    key: 'design',
+    label: 'وكالة تصميم',
+    icon: <GalleryHorizontalIcon className="w-6 h-6 text-primary" />,
+    desc: 'تصميم جرافيك، شعارات، هويات بصرية، مطبوعات.'
+  },
+  {
+    key: 'press',
+    label: 'وكالة صحافة وإعلانات',
+    icon: <BellIcon className="w-6 h-6 text-yellow-500" />,
+    desc: 'إعلانات صحفية، حملات إعلامية، لوحات إعلانية.'
+  },
+  {
+    key: 'marketing',
+    label: 'وكالة تسويق',
+    icon: <TrendingUpIcon className="w-6 h-6 text-green-500" />,
+    desc: 'تسويق رقمي، حملات إعلانية، إدارة محتوى.'
+  },
+  {
+    key: 'webdev',
+    label: 'وكالة تطوير مواقع وتطبيقات',
+    icon: <CodeIcon className="w-6 h-6 text-blue-500" />,
+    desc: 'برمجة وتصميم مواقع وتطبيقات احترافية.'
+  },
+  {
+    key: 'video',
+    label: 'وكالة إنتاج فيديو وموشن جرافيك',
+    icon: <VideoIcon className="w-6 h-6 text-red-500" />,
+    desc: 'فيديوهات ترويجية، موشن جرافيك، مونتاج.'
+  },
+  {
+    key: 'content',
+    label: 'وكالة إدارة محتوى وكتابة إبداعية',
+    icon: <BookOpenIcon className="w-6 h-6 text-purple-500" />,
+    desc: 'كتابة محتوى، تحرير، حملات إبداعية.'
+  },
+  {
+    key: 'photo',
+    label: 'وكالة تصوير فوتوغرافي',
+    icon: <CameraIcon className="w-6 h-6 text-pink-500" />,
+    desc: 'تصوير منتجات، مناسبات، جلسات تصوير.'
+  },
+  {
+    key: 'events',
+    label: 'وكالة تنظيم فعاليات ومعارض',
+    icon: <CalendarIcon className="w-6 h-6 text-cyan-500" />,
+    desc: 'تنظيم مؤتمرات، معارض، فعاليات إطلاق.'
+  }
+];
+
 export default function ClearLandingPage() {
   const [loading, setLoading] = useState<'none' | 'fresh' | 'seed'>('none');
+  const [category, setCategory] = useState<'design' | 'press' | 'marketing' | 'webdev' | 'video' | 'content' | 'photo' | 'events'>('design');
+  const [progress, setProgress] = useState(0);
+  const [showAll, setShowAll] = useState(false);
   const router = useRouter();
+
+  // Progress simulation logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (loading === 'seed') {
+      setProgress(0);
+      interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(interval!);
+            return 95;
+          }
+          // Slower as it approaches 95%
+          const inc = prev < 80 ? Math.random() * 8 + 3 : Math.random() * 2 + 1;
+          return Math.min(prev + inc, 95);
+        });
+      }, 200);
+    } else {
+      setProgress(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [loading]);
 
   const handleReset = async (seedDemo: boolean) => {
     setLoading(seedDemo ? 'seed' : 'fresh');
     try {
-      const res = await fetch(`/api/reset-demo${seedDemo ? '?seed=demo' : ''}`, { method: 'POST' });
-      if (res.ok) {
-        router.push('/');
+      const url = seedDemo
+        ? `/api/reset-demo?seed=demo&category=${category}`
+        : '/api/reset-demo';
+      const res = await fetch(url, { method: 'POST' });
+      // When API finishes, set progress to 100% and wait a moment before redirect
+      if (seedDemo) {
+        setProgress(100);
+        setTimeout(() => {
+          router.push('/');
+        }, 400);
+      } else if (res.ok) {
+        router.push('/?fresh=1');
       } else {
         alert('حدث خطأ أثناء إعادة التهيئة');
       }
     } catch {
       alert('حدث خطأ أثناء الاتصال بالخادم');
     } finally {
-      setLoading('none');
+      if (!seedDemo) setLoading('none');
     }
   };
 
@@ -430,116 +568,145 @@ export default function ClearLandingPage() {
           <div className="absolute -inset-4 bg-gradient-to-r from-primary via-accent to-primary rounded-3xl blur-2xl opacity-20 animate-pulse"></div>
           <div className="relative backdrop-blur-md rounded-3xl p-12 border border-border/20 hover:border-border/30 transition-colors duration-300 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10"></div>
-            <div className="relative z-10">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/20 to-accent/20 px-4 py-2 rounded-full border border-border/30 mb-6">
-                  <ZapIcon className="size-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">العرض محدود الوقت</span>
-                </div>
-                <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary mb-6">
-                  جاهز لتوفير 8 أيام؟
-                </h2>
-                <p className="text-xl text-foreground/90 mb-4 max-w-3xl mx-auto leading-relaxed">
-                  ابدأ الآن وشاهد كيف ستوفر الوقت والمال وتزيد أرباحك بنسبة <span className="font-bold text-primary">25-40%</span> في أول 6 أشهر
-                </p>
-                <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <CheckCircleIcon className="size-4 text-success" />
-                    <span>مجاني تماماً</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircleIcon className="size-4 text-success" />
-                    <span>بدون بطاقة ائتمان</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircleIcon className="size-4 text-success" />
-                    <span>ابدأ في دقائق</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                <Link 
-                  href="/" 
-                  className="group relative overflow-hidden text-center p-8 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-                  <div className="relative z-10">
-                    <div className="bg-primary-foreground/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <CheckCircleIcon className="size-8" />
-                    </div>
-                    <h3 className="font-bold text-xl mb-3">استخدام البيانات الحالية</h3>
-                    <p className="text-primary-foreground/90 text-sm mb-4">تابع مع البيانات الموجودة واستكشف الميزات</p>
-                    <div className="bg-primary-foreground/20 px-3 py-1 rounded-full text-xs font-medium">
-                      الأسرع للبدء
-                    </div>
-                  </div>
-                </Link>
-                
-                <button
-                  onClick={() => handleReset(false)}
-                  disabled={loading === 'fresh' || loading === 'seed'}
-                  className="group relative overflow-hidden text-center p-8 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/90 to-secondary/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-muted rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-                  <div className="relative z-10">
-                    <div className="bg-secondary-foreground/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      {loading === 'fresh' ? (
-                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-secondary-foreground border-t-transparent" />
-                      ) : (
-                        <RocketIcon className="size-8" />
-                      )}
-                    </div>
-                    <h3 className="font-bold text-xl mb-3">بدء تجربة فارغة</h3>
-                    <p className="text-secondary-foreground/90 text-sm mb-4">ابدأ من الصفر وأنشئ مشاريعك الخاصة</p>
-                    <div className="bg-secondary-foreground/20 px-3 py-1 rounded-full text-xs font-medium">
-                      {loading === 'fresh' ? 'جاري التحضير...' : 'للمبتدئين'}
-                    </div>
-                  </div>
-                </button>
-                
+            <div className="relative z-10 flex justify-center items-center w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl w-full mx-auto">
+                {/* Seed Demo Data Card */}
                 <button
                   onClick={() => handleReset(true)}
                   disabled={loading === 'fresh' || loading === 'seed'}
-                  className="group relative overflow-hidden text-center p-8 rounded-2xl bg-gradient-to-br from-accent to-accent/80 text-accent-foreground shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100"
+                  className="group relative overflow-hidden text-center p-8 rounded-3xl bg-gradient-to-br from-accent/80 to-accent/60 text-accent-foreground shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100 border border-accent/20"
+                  style={{ minWidth: '320px', minHeight: '420px' }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/90 to-accent/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -inset-1 bg-gradient-to-r from-accent to-primary rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-                  <div className="relative z-10">
-                    <div className="bg-accent-foreground/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-accent to-primary rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+                  <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                    <div className="mb-6 flex items-center justify-center">
                       {loading === 'seed' ? (
-                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-accent-foreground border-t-transparent" />
+                        <CircularProgressBar progress={progress} />
                       ) : (
-                        <ZapIcon className="size-8" />
+                        <ZapIcon className="size-10 text-accent" />
                       )}
                     </div>
-                    <h3 className="font-bold text-xl mb-3">تهيئة بيانات تجريبية</h3>
-                    <p className="text-accent-foreground/90 text-sm mb-4">استكشف المنصة مع بيانات وهمية كاملة</p>
-                    <div className="bg-accent-foreground/20 px-3 py-1 rounded-full text-xs font-medium">
-                      {loading === 'seed' ? 'جاري التحضير...' : 'الأكثر شمولية'}
+                    <h3 className="font-bold text-2xl mb-2 text-center">
+                      {category === 'design' && 'تهيئة بيانات وكالة تصميم'}
+                      {category === 'press' && 'تهيئة بيانات وكالة صحافة وإعلانات'}
+                      {category === 'marketing' && 'تهيئة بيانات وكالة تسويق'}
+                    </h3>
+                    <p className="text-accent-foreground/90 text-base mb-4 text-center">
+                      {category === 'design' && 'استكشف المنصة مع بيانات وكالة تصميم كاملة'}
+                      {category === 'press' && 'استكشف المنصة مع بيانات وكالة صحافة وإعلانات كاملة'}
+                      {category === 'marketing' && 'استكشف المنصة مع بيانات وكالة تسويق كاملة'}
+                    </p>
+                    <div className="bg-accent-foreground/20 px-3 py-1 rounded-full text-xs font-medium mb-4">
+                      {loading === 'seed' ? 'جاري التحضير...' : 
+                        category === 'design' ? 'وكالة تصميم' :
+                        category === 'press' ? 'وكالة صحافة' :
+                        'وكالة تسويق'
+                      }
+                    </div>
+                    {/* Grid of cards for agency category selection */}
+                    <div className="flex flex-col gap-4 mt-6">
+                      {categories.slice(0, 3).map(cat => (
+                        <label
+                          key={cat.key}
+                          className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${category === cat.key ? 'border-primary bg-primary/10 shadow-lg' : 'border-border bg-background hover:bg-accent/30'}`}
+                          onClick={() => setCategory(cat.key as any)}
+                          style={{ userSelect: 'none' }}
+                        >
+                          <div>{cat.icon}</div>
+                          <div className="flex-1">
+                            <div className="font-bold text-lg mb-1">{cat.label}</div>
+                            <div className="text-sm text-muted-foreground">{cat.desc}</div>
+                          </div>
+                          <input
+                            type="radio"
+                            name="agencyType"
+                            value={cat.key}
+                            checked={category === cat.key}
+                            onChange={() => setCategory(cat.key as any)}
+                            className="form-radio accent-primary size-5"
+                            style={{ pointerEvents: 'none' }}
+                          />
+                        </label>
+                      ))}
+                      <button
+                        type="button"
+                        className="flex items-center justify-center p-4 rounded-xl border border-border bg-background hover:bg-accent/30 transition-all font-bold text-primary text-lg"
+                        onClick={() => setShowAll(true)}
+                      >
+                        عرض المزيد
+                      </button>
                     </div>
                   </div>
                 </button>
-              </div>
-              
-              <div className="text-center mt-12">
-                <div className="inline-flex items-center gap-4 bg-success/10 px-6 py-3 rounded-full border border-success/20">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                    <span className="text-success text-sm font-medium">متاح الآن</span>
+                {/* Fresh Start Card */}
+                <button
+                  onClick={() => handleReset(false)}
+                  disabled={loading === 'fresh' || loading === 'seed'}
+                  className="group relative overflow-hidden text-center p-8 rounded-3xl bg-gradient-to-br from-secondary/80 to-secondary/60 text-secondary-foreground shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100 border border-secondary/20"
+                  style={{ minWidth: '320px', minHeight: '420px' }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/90 to-secondary/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-muted rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+                  <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                    {/* Rocket Icon */}
+                    <div className="mb-6 flex items-center justify-center">
+                      <RocketIcon className="size-12 text-secondary drop-shadow-lg" />
+                    </div>
+                    <h3 className="font-bold text-2xl mb-2 text-center">بدء تجربة فارغة</h3>
+                    <div className="text-secondary-foreground/80 text-base mb-2 text-center font-semibold">أنشئ معرضك الخاص من البداية</div>
+                    <p className="text-secondary-foreground/90 text-sm mb-6 text-center leading-relaxed">
+                      أضف عملاءك، أنشئ مشاريع جديدة، حمّل التصاميم، وتتبع الموافقات والتعليقات بسهولة عبر لوحة تحكم متكاملة مصممة خصيصاً لوكالات التصميم والتسويق.
+                    </p>
+                    <span
+                      className="bg-secondary-foreground/20 px-6 py-2 rounded-full text-base font-bold text-secondary-foreground shadow hover:bg-secondary-foreground/30 transition-all duration-200 disabled:opacity-60 cursor-pointer select-none"
+                      style={{ minWidth: '120px' }}
+                    >
+                      ابدأ الآن
+                    </span>
                   </div>
-                  <div className="w-px h-4 bg-border"></div>
-                  <span className="text-muted-foreground text-sm">
-                    انضم لأكثر من 1000+ مصمم ووكالة
-                  </span>
-                </div>
+                </button>
               </div>
             </div>
+            {/* Loading message below the button */}
+            {loading === 'seed' && (
+              <div className="text-center mt-6 text-accent-foreground animate-fade-in">
+                <span className="font-medium">جاري تجهيز البيانات التجريبية للوكالة المختارة...</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <Dialog open={showAll} onOpenChange={setShowAll}>
+        <DialogContent className="max-w-md w-full min-h-[300px] max-h-[80vh] flex flex-col justify-start items-center">
+          <DialogHeader>
+            <DialogTitle>اختر نوع الوكالة</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 w-full mt-4 overflow-y-auto" style={{ maxHeight: '55vh' }}>
+            {categories.map(cat => (
+              <label key={cat.key} className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${category === cat.key ? 'border-primary bg-primary/10 shadow-lg' : 'border-border bg-background hover:bg-accent/30'}`}
+                onClick={() => { setCategory(cat.key as any); setShowAll(false); }}
+                style={{ userSelect: 'none' }}
+              >
+                <div>{cat.icon}</div>
+                <div className="flex-1">
+                  <div className="font-bold text-lg mb-1">{cat.label}</div>
+                  <div className="text-sm text-muted-foreground">{cat.desc}</div>
+                </div>
+                <input
+                  type="radio"
+                  name="agencyTypeDialog"
+                  value={cat.key}
+                  checked={category === cat.key}
+                  onChange={() => { setCategory(cat.key as any); setShowAll(false); }}
+                  className="form-radio accent-primary size-5"
+                  style={{ pointerEvents: 'none' }}
+                />
+              </label>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -10,6 +10,5 @@ export async function GET(req: NextRequest) {
     where: { imageId },
     orderBy: { createdAt: 'desc' },
   });
-  console.log('Fetched revision requests:', requests);
   return NextResponse.json(requests);
 } 

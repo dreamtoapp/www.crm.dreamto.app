@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Layout from "@/components/Layout";
+import ClientAlertBar from "@/components/ClientAlertBar";
 // import "@fontsource/ibm-plex-sans-arabic/400.css";
 // import "@fontsource/ibm-plex-sans-arabic/700.css";
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from "@/components/theme-provider";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +41,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
+          <Suspense fallback={null}>
+            <ClientAlertBar />
+          </Suspense>
           <Layout>{children}</Layout>
           <Toaster />
         </ThemeProvider>

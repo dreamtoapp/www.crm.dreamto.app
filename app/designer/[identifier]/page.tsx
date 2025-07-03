@@ -73,13 +73,18 @@ export default async function DesignerHomePage({
         </div>
       </div>
       {/* Filters */}
-      <DesignerGalleryFilters
-        clients={clients}
-        designTypes={designTypes}
-        selectedClient={clientId}
-        selectedDesignType={designTypeId}
-        basePath={`/designer/${identifier}`}
-      />
+      <Suspense fallback={<div className="flex flex-wrap gap-4 mb-8">
+        <div className="w-40 h-10 bg-muted animate-pulse rounded" />
+        <div className="w-40 h-10 bg-muted animate-pulse rounded" />
+      </div>}>
+        <DesignerGalleryFilters
+          clients={clients}
+          designTypes={designTypes}
+          selectedClient={clientId}
+          selectedDesignType={designTypeId}
+          basePath={`/designer/${identifier}`}
+        />
+      </Suspense>
       {/* Content */}
       {images.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center text-muted-foreground gap-4">

@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
+const LIMIT = 20;
+
 interface GalleryInfiniteScrollProps {
   initialImages: any[];
   typeId: string;
@@ -50,7 +52,7 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
     try {
       const params = new URLSearchParams();
       params.set("page", reset ? "1" : String(page));
-      params.set("limit", "20");
+      params.set("limit", String(LIMIT));
       if (typeId) params.set("designType", typeId);
       if (clientId) params.set("client", clientId);
       const res = await fetch(`/api/images?${params.toString()}`);
@@ -58,7 +60,8 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
       if (Array.isArray(data.images) && data.images.length > 0) {
         setImages(prev => reset ? data.images : [...prev, ...data.images]);
         setPage(prev => reset ? 2 : prev + 1);
-        setHasMore(data.hasMore);
+        // Best practice: use API hasMore if provided, otherwise fallback to data.images.length === LIMIT
+        setHasMore(typeof data.hasMore === 'boolean' ? data.hasMore : data.images.length === LIMIT);
       } else {
         if (reset) setImages([]);
         setHasMore(false);
@@ -83,6 +86,20 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
 
   return (
     <div>
+      {dedupedImages.length === 0 && !loading && (
+        <div className="flex flex-col items-center justify-center py-24 gap-6">
+          <div className="bg-blue-100 border border-blue-300 text-blue-900 rounded-xl px-8 py-6 shadow-md flex flex-col items-center gap-3 animate-fade-in">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+            <h2 className="text-xl font-bold mb-1">لا توجد تصاميم بعد</h2>
+            <p className="text-base text-blue-800">لبدء العمل، أضف نوع تصميم ومصمم جديد من لوحة التحكم.</p>
+            <p className="text-sm text-blue-700 mt-2">يمكنك إضافة الأنواع والمصممين من قسم الإدارة ثم البدء في رفع التصاميم.</p>
+          </div>
+          <div className="bg-yellow-100 border border-yellow-300 text-yellow-900 rounded-xl px-8 py-4 shadow flex flex-col items-center gap-2 animate-fade-in">
+            <span className="font-bold">تم إنشاء حساب مدير النظام</span>
+            <span>استخدم المعرف: <span className="underline font-mono">A001</span> لتسجيل الدخول واستكشاف المنصة.</span>
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {dedupedImages.map((img, i) => (
           <Card key={img.id} className="overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 group bg-card border-0">
@@ -119,7 +136,7 @@ export default function GalleryInfiniteScroll({ initialImages, typeId, clientId 
           </Card>
         ))}
         {/* Loading skeletons */}
-        {loading && Array.from({ length: 4 }).map((_, i) => (
+        {loading && hasMore && Array.from({ length: 4 }).map((_, i) => (
           <Card key={"skeleton-" + i} className="overflow-hidden rounded-2xl shadow-lg bg-card border-0">
             <div className="relative aspect-[4/3] bg-muted animate-pulse">
               {/* Image skeleton */}

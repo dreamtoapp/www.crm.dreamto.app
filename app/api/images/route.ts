@@ -18,10 +18,6 @@ export async function GET(req: NextRequest) {
       else where.uploaderId = '___NO_MATCH___'; // will return no results
     }
 
-    console.log('--- /api/images QUERY DEBUG ---');
-    console.log('Query params:', Object.fromEntries(searchParams.entries()));
-    console.log('Prisma where:', where);
-
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '20', 10);
     const skip = (page - 1) * limit;
@@ -43,7 +39,6 @@ export async function GET(req: NextRequest) {
     const hasMore = skip + images.length < total;
     return NextResponse.json({ images, total, hasMore, page, limit });
   } catch (error) {
-    console.error('Error in /api/images:', error);
     return NextResponse.json({ error: 'Failed to fetch images', details: String(error) }, { status: 500 });
   }
 } 
