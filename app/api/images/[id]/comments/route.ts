@@ -8,7 +8,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { content } = await req.json();
+    const { content, authorId, parentId } = await req.json();
     const { id: imageId } = await params;
 
     // Validate content
@@ -31,34 +31,31 @@ export async function POST(
       );
     }
 
-    // For now, we'll use the client as the author
-    // In a real app, you'd get the current user from authentication
-    const client = await db.user.findUnique({
-      where: { id: image.clientId }
-    });
-
-    if (!client) {
-      return NextResponse.json(
-        { error: 'Client not found' },
-        { status: 404 }
-      );
+    // Fetch the user to get authorRole
+    const user = await db.user.findUnique({ where: { id: authorId } });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Create the comment
     const comment = await db.comment.create({
       data: {
         content: content.trim(),
-        imageId: imageId,
-        authorId: client.id
+        imageId,
+        authorId,
+        designerId: image.designerId || image.uploaderId, // use correct field
+        authorRole: user.role,
+        parentId: parentId || null,
+        isDeleted: false,
       },
       include: {
         author: {
           select: {
             name: true,
-            role: true
-          }
-        }
-      }
+            role: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({

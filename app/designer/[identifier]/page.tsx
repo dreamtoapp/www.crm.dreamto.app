@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { UploadIcon, GalleryHorizontalIcon, ImageIcon, CalendarIcon, MessageCircleIcon, UserIcon, InfoIcon, FileIcon, RulerIcon, XCircleIcon } from 'lucide-react';
 import { Suspense } from 'react';
 import DesignerGalleryFilters from '@/components/dashboard/DesignerGalleryFilters';
+import DesignerCommentsButton from '@/components/dashboard/DesignerCommentsButton';
 
 export default async function DesignerHomePage({
   params,
@@ -61,12 +62,15 @@ export default async function DesignerHomePage({
           </h1>
           <p className="text-base text-muted-foreground">هنا تجد جميع تصاميمك المرفوعة مع تفاصيلها</p>
         </div>
-        <Link href={`/designer/${identifier}/upload`}>
-          <Button variant="default" size="lg" className="gap-2 rtl:flex-row-reverse">
-            <UploadIcon className="size-5" />
-            رفع تصميم جديد
-          </Button>
-        </Link>
+        <div className="flex gap-2 items-center">
+          <Link href={`/designer/${identifier}/upload`}>
+            <Button variant="default" size="lg" className="gap-2 rtl:flex-row-reverse">
+              <UploadIcon className="size-5" />
+              رفع تصميم جديد
+            </Button>
+          </Link>
+          <DesignerCommentsButton designerId={designer.id} />
+        </div>
       </div>
       {/* Filters */}
       <DesignerGalleryFilters

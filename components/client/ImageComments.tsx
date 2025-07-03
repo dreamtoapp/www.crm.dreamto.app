@@ -71,7 +71,7 @@ export default function ImageComments({
       const response = await fetch(`/api/images/${imageId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, parentId })
+        body: JSON.stringify({ content, parentId, authorId: currentUserId })
       });
       if (response.ok) {
         setNewComment('');

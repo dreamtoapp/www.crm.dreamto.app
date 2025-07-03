@@ -68,6 +68,9 @@ model Comment {
   children  Comment[] @relation("CommentParent")
   // Moderation
   isDeleted Boolean  @default(false)
+  // NEW FIELDS
+  designerId String
+  authorRole Role
 }
 
 enum Role {
