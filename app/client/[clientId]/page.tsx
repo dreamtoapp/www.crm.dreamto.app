@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { GalleryHorizontalIcon, ImageIcon, InfoIcon, CheckCircle, XCircle, MessageCircle, Clock } from 'lucide-react';
+import { GalleryHorizontalIcon, ImageIcon, InfoIcon, CheckCircle, XCircle, MessageCircle, Clock, Share2 } from 'lucide-react';
 import DesignerGalleryFilters from '@/components/dashboard/DesignerGalleryFilters';
+import Image from 'next/image';
+import React from 'react';
+import { ClientImageGrid } from './ClientImageGrid';
 
 export default async function ClientGalleryPage({
   params,
@@ -30,6 +33,7 @@ export default async function ClientGalleryPage({
   const images = await db.image.findMany({
     where,
     orderBy: { createdAt: 'desc' },
+    include: { uploader: true },
   });
 
   // Deduplicate images by id
@@ -114,43 +118,7 @@ export default async function ClientGalleryPage({
             </div>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {uniqueImages.map(img => {
-              const tagValue = typeof (img as any).tag === 'string' && (img as any).tag.length > 0 ? (img as any).tag : '—';
-              return (
-                <Link key={img.id} href={`/client/${clientId}/image/${img.id}`} className="block">
-                  <Card className="card-interactive gpu-accelerated group transition-transform duration-200 hover:scale-[1.025] hover:shadow-xl rounded-2xl border border-border/60">
-                    <div className="image-container aspect-[4/3] relative">
-                      {img.url ? (
-                        <img
-                          src={img.url}
-                          alt={tagValue}
-                          className="object-cover w-full h-full rounded-t-2xl"
-                          style={{ maxHeight: 240 }}
-                        />
-                      ) : (
-                        <ImageIcon className="size-12 text-gray-300 mx-auto my-12" />
-                      )}
-                      {/* Status Badge Overlay */}
-                      <div className="absolute top-2 left-2">
-                        {getStatusBadge(img.status || 'PENDING')}
-                      </div>
-                    </div>
-                    <CardHeader className="p-4 flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge>{tagValue}</Badge>
-                        <Badge variant="secondary">{designTypes.find(dt => dt.id === img.designTypeId)?.name || 'نوع غير معروف'}</Badge>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <InfoIcon className="size-4" />
-                        {img.publicId}
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
+          <ClientImageGrid images={uniqueImages} designTypes={designTypes} clientId={clientId} />
         )}
       </div>
     </div>

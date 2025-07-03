@@ -23,7 +23,7 @@ import { Separator } from "./ui/separator";
 import Link from "next/link";
 import { toast } from 'sonner';
 import Image from "next/image";
-import { ModeToggle } from "./ui/mode-toggle";
+import ModeToggle from "./ui/mode-toggle";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface LayoutProps {
