@@ -38,12 +38,20 @@ export async function POST(
         updateData.status = 'APPROVED';
         updateData.approvedAt = new Date();
         updateData.clientFeedback = null;
+        updateData.rejectionReason = null;
         break;
       
       case 'reject':
+        if (!feedback || !feedback.trim()) {
+          return NextResponse.json(
+            { error: 'Reason is required for rejection' },
+            { status: 400 }
+          );
+        }
         updateData.status = 'REJECTED';
         updateData.rejectedAt = new Date();
-        updateData.clientFeedback = feedback || null;
+        updateData.rejectionReason = feedback;
+        updateData.clientFeedback = null;
         break;
       
       case 'revision':
@@ -55,6 +63,7 @@ export async function POST(
         }
         updateData.status = 'REVISION_REQUESTED';
         updateData.clientFeedback = feedback;
+        updateData.rejectionReason = null;
         break;
     }
 

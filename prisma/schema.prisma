@@ -43,6 +43,7 @@ model Image {
   clientFeedback String?
   approvedAt    DateTime?
   rejectedAt    DateTime?
+  rejectionReason String? // Reason for rejection
   // Technical info
   format        String?
   bytes         Int?

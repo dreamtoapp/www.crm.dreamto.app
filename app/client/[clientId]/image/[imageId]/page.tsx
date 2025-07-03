@@ -123,6 +123,12 @@ export default async function ClientImageDetailPage({
                     <span className="text-muted-foreground">معرف الصورة:</span>
                     <span className="font-mono text-xs">{image.publicId}</span>
                   </div>
+                  {image.status === 'REJECTED' && image.rejectionReason && (
+                    <div className="mt-4 p-3 bg-red-50 rounded-lg">
+                      <div className="text-sm font-medium text-red-900 mb-1">سبب الرفض:</div>
+                      <div className="text-sm text-red-800">{image.rejectionReason}</div>
+                    </div>
+                  )}
                   {image.clientFeedback && (
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                       <div className="text-sm font-medium text-blue-900 mb-1">ملاحظات العميل:</div>

@@ -24,14 +24,19 @@ export default function ImageApprovalActions({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   const router = useRouter();
 
-  const handleAction = async (action: 'approve' | 'reject' | 'revision') => {
+  const handleAction = async (action: 'approve' | 'reject' | 'revision', reason?: string) => {
     if (action === 'revision' && !feedback.trim()) {
       setShowFeedbackForm(true);
       return;
     }
-
+    if (action === 'reject' && (!reason || !reason.trim())) {
+      setShowRejectDialog(true);
+      return;
+    }
     setIsSubmitting(true);
     try {
       const response = await fetch(`/api/images/${imageId}/approval`, {
@@ -39,10 +44,9 @@ export default function ImageApprovalActions({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action,
-          feedback: action === 'revision' ? feedback : undefined
+          feedback: action === 'revision' ? feedback : action === 'reject' ? reason : undefined
         })
       });
-
       if (response.ok) {
         router.refresh();
         setFeedback('');
@@ -61,6 +65,13 @@ export default function ImageApprovalActions({
     setShowApproveDialog(false);
     await handleAction('approve');
     toast.success('تمت الموافقة على التصميم بنجاح.');
+  };
+
+  const handleReject = async () => {
+    setShowRejectDialog(false);
+    await handleAction('reject', rejectReason);
+    setRejectReason('');
+    toast.success('تم رفض التصميم مع ذكر السبب.');
   };
 
   const getStatusInfo = (status: string) => {
@@ -120,7 +131,7 @@ export default function ImageApprovalActions({
               </Button>
               
               <Button
-                onClick={() => handleAction('reject')}
+                onClick={() => setShowRejectDialog(true)}
                 disabled={isSubmitting}
                 variant="destructive"
               >
@@ -188,6 +199,35 @@ export default function ImageApprovalActions({
                 <DialogFooter>
                   <Button onClick={handleApprove} disabled={isSubmitting} className="bg-success hover:bg-success/90 text-success-foreground">
                     تأكيد
+                  </Button>
+                  <DialogClose asChild>
+                    <Button variant="outline">إلغاء</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* Reject Confirmation Dialog */}
+            <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+              <DialogContent showCloseButton={false}>
+                <DialogHeader>
+                  <DialogTitle>تأكيد الرفض</DialogTitle>
+                  <DialogDescription>
+                    يجب عليك ذكر سبب الرفض لهذا التصميم.
+                  </DialogDescription>
+                </DialogHeader>
+                <div>
+                  <textarea
+                    value={rejectReason}
+                    onChange={e => setRejectReason(e.target.value)}
+                    placeholder="اكتب سبب الرفض..."
+                    rows={4}
+                    className="w-full p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleReject} disabled={isSubmitting || !rejectReason.trim()} variant="destructive">
+                    إرسال الرفض
                   </Button>
                   <DialogClose asChild>
                     <Button variant="outline">إلغاء</Button>
