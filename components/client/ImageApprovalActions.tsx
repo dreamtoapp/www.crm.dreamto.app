@@ -13,12 +13,16 @@ interface ImageApprovalActionsProps {
   imageId: string;
   currentStatus: string;
   clientId: string;
+  maxRevisionRequests: number;
+  revisionRequestCount: number;
 }
 
 export default function ImageApprovalActions({ 
   imageId, 
   currentStatus, 
-  clientId 
+  clientId,
+  maxRevisionRequests,
+  revisionRequestCount
 }: ImageApprovalActionsProps) {
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -103,6 +107,7 @@ export default function ImageApprovalActions({
 
   const statusInfo = getStatusInfo(currentStatus);
   const isPending = currentStatus === 'PENDING';
+  const reachedLimit = revisionRequestCount >= maxRevisionRequests;
 
   return (
     <Card>
@@ -141,13 +146,16 @@ export default function ImageApprovalActions({
               
               <Button
                 onClick={() => setShowFeedbackForm(true)}
-                disabled={isSubmitting}
+                disabled={isSubmitting || reachedLimit}
                 variant="outline"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 طلب تعديل
               </Button>
             </div>
+            {reachedLimit && (
+              <div className="text-xs text-destructive mt-2 text-center">لا يمكنك طلب تعديل آخر، لقد وصلت للحد الأقصى.</div>
+            )}
 
             {/* Feedback Form */}
             {showFeedbackForm && (

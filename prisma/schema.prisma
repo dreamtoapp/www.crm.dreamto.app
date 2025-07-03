@@ -49,6 +49,7 @@ model Image {
   bytes         Int?
   width         Int?
   height        Int?
+  revisionRequestCount Int @default(0)
 }
 
 model Comment {

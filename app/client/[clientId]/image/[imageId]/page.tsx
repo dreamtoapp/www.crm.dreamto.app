@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle, XCircle, MessageCircle, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, MessageCircle, Clock, Info, AlertTriangle } from 'lucide-react';
 import ImageApprovalActions from '@/components/client/ImageApprovalActions';
 import ImageComments from '@/components/client/ImageComments';
+import { useEffect, useState } from 'react';
 
 export default async function ClientImageDetailPage({
   params,
@@ -50,6 +51,14 @@ export default async function ClientImageDetailPage({
       role: comment.author.role
     }
   }));
+
+  // Fetch max revision requests from settings API
+  let maxRevisionRequests = 2;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/settings/max-revision-requests`, { cache: 'no-store' });
+    const data = await res.json();
+    if (data.value) maxRevisionRequests = Number(data.value);
+  } catch {}
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -142,11 +151,29 @@ export default async function ClientImageDetailPage({
 
           {/* Actions & Comments Section */}
           <div className="space-y-6">
+            {/* Revision Counter Message */}
+            {maxRevisionRequests > 0 && (
+              <div className="mb-2 flex items-center justify-center">
+                {image.revisionRequestCount >= maxRevisionRequests ? (
+                  <Badge className="bg-destructive/10 text-destructive flex items-center gap-2 px-4 py-2 text-base">
+                    <AlertTriangle className="w-4 h-4" />
+                    {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
+                  </Badge>
+                ) : (
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 flex items-center gap-2 px-4 py-2 text-base">
+                    <Info className="w-4 h-4" />
+                    {`لقد استخدمت ${image.revisionRequestCount} من أصل ${maxRevisionRequests} طلب تعديل مسموح لهذا التصميم.`}
+                  </Badge>
+                )}
+              </div>
+            )}
             {/* Approval Actions */}
             <ImageApprovalActions 
               imageId={image.id}
               currentStatus={image.status || 'PENDING'}
               clientId={clientId}
+              maxRevisionRequests={maxRevisionRequests}
+              revisionRequestCount={image.revisionRequestCount}
             />
 
             {/* Comments Section */}
