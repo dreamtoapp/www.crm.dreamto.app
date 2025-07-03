@@ -93,3 +93,5 @@ The revision request system now uses a dedicated `RevisionRequest` table to trac
 - Prioritize role badges and moderation first for clarity and safety
 - Threaded replies and notifications are optional but recommended for richer UX
 - All changes should be tested for RTL and accessibility 
+
+- [ ] Integrate Pusher for real-time notifications and comment updates (live chat, instant UI refresh) 

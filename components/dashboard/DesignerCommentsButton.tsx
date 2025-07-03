@@ -55,14 +55,14 @@ export default function DesignerCommentsButton({ designerId }: { designerId: str
           ) : (
             comments.map((c) => (
               <div key={c.id} className="flex items-center gap-4 bg-muted rounded-lg p-3 shadow-sm">
-                <img src={c.image} alt="صورة التصميم" className="w-16 h-16 rounded object-cover border" />
+                <img src={c.imageUrl} alt="صورة التصميم" className="w-16 h-16 rounded object-cover border" />
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-primary truncate">{c.client}</div>
-                  <div className="text-sm text-gray-700 truncate">{c.text}</div>
-                  <div className="text-xs text-gray-500 mt-1">{c.date}</div>
+                  <div className="text-sm text-gray-700 truncate">{c.content}</div>
+                  <div className="text-xs text-gray-500 mt-1">{new Date(c.date).toLocaleString('ar-EG')}</div>
                 </div>
-                <Link href={`/designer/image/${c.imageId}`}>
-                  <Button size="sm" variant="outline">انتقل</Button>
+                <Link href={`/designer/${c.clientId}/image/${c.imageId}?replyTo=${c.id}`} scroll={false}>
+                  <Button size="sm" variant="outline">رد</Button>
                 </Link>
               </div>
             ))

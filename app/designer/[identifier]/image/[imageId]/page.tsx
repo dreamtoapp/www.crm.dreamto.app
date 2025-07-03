@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, MessageCircleIcon, InfoIcon, FileIcon, RulerIcon, UserIcon, ImageIcon, ArrowRightIcon } from 'lucide-react';
+import ImageComments from '@/components/client/ImageComments';
 
 interface Props {
   params: Promise<{ identifier: string; imageId: string }>;
@@ -16,7 +17,7 @@ export default async function ImageFullPage({ params }: Props) {
     include: {
       uploader: { select: { id: true, name: true, role: true, identifier: true } },
       client: { select: { id: true, name: true, identifier: true } },
-      comments: true,
+      comments: { include: { author: true } },
       designType: true,
     },
   });
@@ -93,6 +94,24 @@ export default async function ImageFullPage({ params }: Props) {
             )}
           </div>
         )}
+      </div>
+      {/* Comments Section */}
+      <div className="w-full max-w-2xl mx-auto mb-12">
+        <ImageComments
+          imageId={image.id}
+          comments={image.comments.map(c => ({
+            ...c,
+            createdAt: typeof c.createdAt === 'string' ? c.createdAt : c.createdAt?.toISOString?.() || '',
+            author: {
+              id: c.author?.id || '',
+              name: c.author?.name || '',
+              role: c.authorRole || '',
+            },
+          }))}
+          clientId={image.client?.id || ''}
+          currentUserId={image.uploader.id}
+          currentUserRole={image.uploader.role}
+        />
       </div>
     </div>
   );
